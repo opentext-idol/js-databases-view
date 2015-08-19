@@ -1,0 +1,9 @@
+# IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# NPM
+node_modules/
+.bin
