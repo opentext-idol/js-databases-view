@@ -30,6 +30,11 @@
   },
   "resolutions": {
     "backbone": "~1.2.1",
-    "underscore": "~1.8.3"
+    "underscore": "~1.8.3",
+    "jquery": "~1.10.0"
+  },
+  "devDependencies": {
+    "jasmine-jquery": "~2.1.0",
+    "hp-autonomy-js-testing-utils": "~1.1.0"
   }
 }
