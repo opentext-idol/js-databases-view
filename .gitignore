@@ -10,3 +10,9 @@ node_modules/
 
 # Bower
 bower_components/
+
+# Grunt
+.grunt/
+bin/
+spec-runner.html
+coverage-runner.html
