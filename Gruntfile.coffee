@@ -152,6 +152,18 @@ module.exports = (grunt) ->
           user:
             name: 'Travis CI Server'
             email: 'alex.scown@hp.com'
+    watch:
+      doc:
+        files: [
+          'src/**/*.js'
+        ]
+        tasks: ['doc']
+      test:
+        files: [
+          'src/**/*.js'
+          'test/**/*.js'
+        ]
+        tasks: ['test']
 
   grunt.loadNpmTasks 'grunt-contrib-clean'
   grunt.loadNpmTasks 'grunt-contrib-connect'
@@ -160,6 +172,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-coffeelint'
   grunt.loadNpmTasks 'grunt-gh-pages'
   grunt.loadNpmTasks 'grunt-jsdoc'
+  grunt.loadNpmTasks 'grunt-contrib-watch'
 
   grunt.registerTask 'default', ['lint', 'connect:server', 'jasmine:test', 'jasmine:coverage']
   grunt.registerTask 'test', ['connect:server', 'jasmine:test']
@@ -169,3 +182,5 @@ module.exports = (grunt) ->
   grunt.registerTask 'doc', ['jsdoc']
   grunt.registerTask 'push-doc', ['doc', 'gh-pages:default']
   grunt.registerTask 'push-doc-travis', ['doc', 'gh-pages:travis']
+  grunt.registerTask 'watch-doc', ['watch:doc']
+  grunt.registerTask 'watch-test', ['watch:test']
