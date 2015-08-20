@@ -3,13 +3,17 @@
  * Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License.
  */
 
+/**
+ * @module databases-view/js/databases-view
+ */
 define([
     'backbone',
     'underscore',
     'js-whatever/js/list-view',
     'js-whatever/js/filtering-collection',
     'js-whatever/js/escape-hod-identifier'
-], function(Backbone, _, ListView, FilteringCollection, escapeHodIdentifier) {
+], function(Backbone, _, ListView, FilteringCollection, escapeHodIdentifier) //noinspection JSClosureCompilerSyntax
+{
 
     var filteredIndexesCollection = function(filter, databasesCollection) {
         return new FilteringCollection([], {
@@ -25,18 +29,143 @@ define([
         })
     };
 
-    return Backbone.View.extend({
+    /**
+     * @typedef ResourceIdentifier
+     * @property {string} name The name of the resource
+     * @property {string} domain The domain of the resource
+     */
+    /**
+     * Returns the resource identifier representations of the models in the collection
+     * @callback module:databases-view/js/databases-view.DatabasesCollection~getResourceIdentifiers
+     * @returns {Array<ResourceIdentifier>} The resource identifiers of the models in the collection
+     */
+    /**
+     * @typedef module:databases-view/js/databases-view.DatabasesCollection
+     * @desc A Backbone Collection for holding the databases
+     * @class
+     * @extends Backbone.Collection
+     * @property {module:databases-view/js/databases-view.DatabasesCollection~getResourceIdentifiers} getResourceIdentifiers
+     */
+    /**
+     * Function that describes the databases that a category contains
+     * @callback module:databases-view/js/databases-view.DatabasesView~CategoryFilter
+     * @param {Backbone.Model} model The database model
+     * @return {boolean} True if the database is in the category; false otherwise
+     */
+    /**
+     * @typedef module:databases-view/js/databases-view.DatabasesView~Category
+     * @property {module:databases-view/js/databases-view.DatabasesView~CategoryFilter} filter Filter describing the databases contained in the category
+     * @property {string} name The name of the category
+     * @property {string} displayName A different name which may be more suitable for display
+     * @property {string} className CSS classes to apply to the category when it is rendered
+     */
+    /**
+     * @typedef module:databases-view/js/databases-view.DatabasesView~DatabasesViewOptions
+     * @property {module:databases-view/js/databases-view.DatabasesCollection} databasesCollection The resources that the view will display
+     * @property {string} topLevelDisplayName The display name of the top level category
+     * @property {boolean} [forceSelection=false] True if at least one item must always be selected; false otherwise
+     * @property {string} [emptyMessage=''] Message to display if there are no databases
+     * @property {Array<ResourceIdentifier>} [currentSelection] The initially selected databases. If undefined all the databases will be selected
+     * @property {Array<module:databases-view/js/databases-view.DatabasesView~Category>} [childCategories] The categories the databases will be placed in. If undefined all the databases will be in a single category
+     */
+    /**
+     * @name module:databases-view/js/databases-view.DatabasesView
+     * @desc View for showing and selecting HP Haven OnDemand resources.  This is an abstract class and must be supplied
+     * with templates for databases and categories. In addition, six primitive operations must be implemented:
+     * <ul>
+     *     <li> check
+     *     <li> uncheck
+     *     <li> enable
+     *     <li> disable
+     *     <li> determinate
+     *     <li> indeterminate
+     * </ul>
+     * @param {module:databases-view/js/databases-view.DatabasesView~DatabasesViewOptions} options The options for the view
+     * @constructor
+     * @abstract
+     * @extends Backbone.View
+     */
+    //noinspection JSClosureCompilerSyntax
+    return Backbone.View.extend(/**@lends module:databases-view/js/databases-view.DatabasesView.prototype */{
+        /**
+         * @desc Template for the view. If overriding it should have an element with class databases-list. For empty
+         * message support add an element with class no-active databases
+         * @method
+         */
         template: _.template('<div class="no-active-databases"></div><div class="databases-list"></div>'),
-        databaseTemplate: $.noop, // you need to override this
-        categoryTemplate: $.noop, // you need to override this
 
-        // subtypes should override these as applicable
+        /**
+         * @desc Template for an individual database. The element which will respond to user interaction must have
+         * class database-input. The name of the database must be in a data-id attribute. The name of the domain must
+         * be in a data-domain attribute
+         * @abstract
+         * @method
+         */
+        databaseTemplate: $.noop,
+
+        /**
+         * @desc Template for a category. The element which will respond to user interaction must have
+         * class database-input. The name of the category must be in a data-category-id attribute. There must be an
+         * element with class child-categories if child categories are used.
+         * @abstract
+         * @method
+         */
+        categoryTemplate: $.noop,
+
+
+        /**
+         * @desc Perform any initialization required for the database and category inputs to become functional
+         * @abstract
+         * @method
+         */
         initializeInputs: $.noop,
+
+        /**
+         * @desc Marks the given input as selected
+         * @param {jQuery} input The input to mark
+         * @abstract
+         * @method
+         */
         check: $.noop,
+
+        /**
+         * @desc Marks the given input as deselected
+         * @param {jQuery} input The input to mark
+         * @abstract
+         * @method
+         */
         uncheck: $.noop,
+
+        /**
+         * @desc Marks the given input as enabled
+         * @param {jQuery} input The input to mark
+         * @abstract
+         * @method
+         */
         enable: $.noop,
+
+        /**
+         * @desc Marks the given input as disabled
+         * @param {jQuery} input The input to mark
+         * @abstract
+         * @method
+         */
         disable: $.noop,
+
+        /**
+         * @desc Marks the given input as determinate
+         * @param {jQuery} input The input to mark
+         * @abstract
+         * @method
+         */
         determinate: $.noop,
+
+        /**
+         * @desc Marks the given input as indeterminate
+         * @param {jQuery} input The input to mark
+         * @abstract
+         * @method
+         */
         indeterminate: $.noop,
 
         initialize: function(options) {
@@ -160,6 +289,10 @@ define([
             });
         },
 
+        /**
+         * @desc Renders the view
+         * @returns {module:databases-view/js/databases-view.DatabasesView} this
+         */
         render: function() {
             this.$el.html(this.template(this.getTemplateOptions()));
 
@@ -208,10 +341,17 @@ define([
             return this;
         },
 
+        /**
+         * Returns any parameters required for use in the template. This allows custom templates to take custom parameters
+         * @returns {object} The parameters
+         */
         getTemplateOptions: function() {
             return {}
         },
 
+        /**
+         * Select all the databases
+         */
         selectAll: function() {
             // no work to do if everything already selected (either empty selection or full selection)
             if (!_.isEmpty(this.currentSelection) && this.currentSelection.length !== this.collection.size()) {
@@ -219,6 +359,12 @@ define([
             }
         },
 
+        /**
+         * @desc Selects the database with the given name and domain
+         * @param {string} database The name of the database
+         * @param {string} domain The domain of the database
+         * @param {boolean} checked The new state of the database
+         */
         selectDatabase: function(database, domain, checked) {
             if (checked) {
                 this.currentSelection.push({
@@ -240,6 +386,11 @@ define([
             this.triggerChange();
         },
 
+        /**
+         * @desc Selects the category with the given name
+         * @param {string} category
+         * @param {boolean} checked The new state of the category
+         */
         selectCategory: function(category, checked) {
             var findNode = function(node, name) {
                 if (node.name === name) {
@@ -284,20 +435,34 @@ define([
             this.triggerChange();
         },
 
+        /**
+         * @desc Triggers a change event
+         */
         triggerChange: function() {
             this.trigger('change', this.getSelection());
         },
 
+        /**
+         * @desc Returns the current database selection
+         */
         getSelection: function() {
             return _.isEmpty(this.currentSelection) ? this.collection.getResourceIdentifiers() : _.clone(this.currentSelection);
         },
 
+        /**
+         * @desc Sets the selected databases to a new selection
+         * @param {Array<ResourceIdentifier>} selection The new selection
+         */
         setSelection: function(selection) {
             this.currentSelection = selection;
             this.updateCheckedOptions();
             this.triggerChange();
         },
 
+        /**
+         * @desc Updates the view to match the current internal state. There should be no need to call this method
+         * @private
+         */
         updateCheckedOptions: function() {
             _.each(this.$databaseCheckboxes.add(this.$categoryCheckboxes), function(checkbox) {
                 var $checkbox = $(checkbox);
@@ -321,6 +486,12 @@ define([
             this.updateCategoryCheckbox(this.hierarchy);
         },
 
+        /**
+         * Updates a category checkbox to match the current internal state. There should be no need to call this method
+         * @param {module:databases-view/js/databases-view.DatabasesView~Category} node The category to update
+         * @returns {Array<ResourceIdentifier>} The resource identifier in the category and its descendants
+         * @private
+         */
         updateCategoryCheckbox: function(node) {
             var $categoryCheckbox = this.$('[data-category-id="' + node.name + '"]');
             var childIndexes;
@@ -374,6 +545,10 @@ define([
             return childIndexes;
         },
 
+        /**
+         * @desc Updates the no databases message to match the current internal state. There should be no need to call this method
+         * @private
+         */
         updateEmptyMessage: function() {
             if (this.$emptyMessage && this.$databasesList) {
                 this.$emptyMessage.toggleClass('hide', !this.collection.isEmpty());
