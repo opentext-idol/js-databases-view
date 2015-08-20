@@ -13,7 +13,6 @@ module.exports = (grunt) ->
   styles = 'bower_components/hp-autonomy-js-testing-utils/src/css/bootstrap-stub.css'
   serverPort = 8000
   host = "http://localhost:#{serverPort}/"
-  helpers = 'bower_components/hp-autonomy-js-testing-utils/src/js/jasmine-custom-matcher.js'
 
   grunt.initConfig
     pkg: grunt.file.readJSON 'package.json'
@@ -32,7 +31,6 @@ module.exports = (grunt) ->
       test:
         src: sourcePath
         options:
-          helpers: helpers
           host: host
           keepRunner: true
           outfile: jasmineSpecRunner
@@ -44,7 +42,6 @@ module.exports = (grunt) ->
       coverage:
         src: sourcePath
         options:
-          helpers: helpers
           host: host
           keepRunner: true
           outfile: coverageSpecRunner
