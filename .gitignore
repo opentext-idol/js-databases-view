@@ -16,3 +16,6 @@ bower_components/
 bin/
 spec-runner.html
 coverage-runner.html
+
+# JSDoc
+doc/
