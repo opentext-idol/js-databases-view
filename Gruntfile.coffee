@@ -156,6 +156,7 @@ module.exports = (grunt) ->
       doc:
         files: [
           'src/**/*.js'
+          'README.md'
         ]
         tasks: ['doc']
       test:
