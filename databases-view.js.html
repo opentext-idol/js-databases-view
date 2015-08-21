@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>HP Autonomy Databases View Source: databases-view.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cerulean.css">
+
+</head>
+
+<body>
+<div class="container-fluid">
+	<div class="navbar navbar-fixed-top ">
+		<div class="navbar-inner">
+			<a class="brand" href="index.html">HP Autonomy Databases View</a>
+			<ul class="nav">
+				
+				<li class="dropdown">
+					<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="databases-view.html">databases-view/js/databases-view</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="databases-view.DatabasesCollection.html">databases-view/js/databases-view.DatabasesCollection</a>
+						</li>
+						
+						<li>
+							<a href="databases-view.DatabasesView.html">databases-view/js/databases-view.DatabasesView</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+
+		
+			<div class="span12">
+				
+				<div id="main">
+					
+
+
+		<h1 class="page-title">Source: databases-view.js</h1>
+    
+<section>
+	<article>
+		<pre
+			class="sunlight-highlight-javascript linenums">/*
+ * Copyright 2015 Hewlett-Packard Development Company, L.P.
+ * Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License.
+ */
+
+/**
+ * @module databases-view/js/databases-view
+ */
+define([
+    'backbone',
+    'underscore',
+    'js-whatever/js/list-view',
+    'js-whatever/js/filtering-collection',
+    'js-whatever/js/escape-hod-identifier'
+], function(Backbone, _, ListView, FilteringCollection, escapeHodIdentifier) //noinspection JSClosureCompilerSyntax
+{
+
+    var filteredIndexesCollection = function(filter, databasesCollection) {
+        return new FilteringCollection([], {
+            collection: databasesCollection,
+            modelFilter: filter
+        });
+    };
+
+    var setParent = function(category) {
+        _.each(category.children, function(child) {
+            child.parent = category;
+            setParent(child);
+        })
+    };
+
+    /**
+     * @typedef ResourceIdentifier
+     * @property {string} name The name of the resource
+     * @property {string} domain The domain of the resource
+     */
+    /**
+     * Returns the resource identifier representations of the models in the collection
+     * @callback module:databases-view/js/databases-view.DatabasesCollection~getResourceIdentifiers
+     * @returns {Array&lt;ResourceIdentifier>} The resource identifiers of the models in the collection
+     */
+    /**
+     * @typedef module:databases-view/js/databases-view.DatabasesCollection
+     * @desc A Backbone Collection for holding the databases
+     * @class
+     * @extends Backbone.Collection
+     * @property {module:databases-view/js/databases-view.DatabasesCollection~getResourceIdentifiers} getResourceIdentifiers
+     */
+    /**
+     * Function that describes the databases that a category contains
+     * @callback module:databases-view/js/databases-view.DatabasesView~CategoryFilter
+     * @param {Backbone.Model} model The database model
+     * @return {boolean} True if the database is in the category; false otherwise
+     */
+    /**
+     * @typedef module:databases-view/js/databases-view.DatabasesView~Category
+     * @property {module:databases-view/js/databases-view.DatabasesView~CategoryFilter} filter Filter describing the databases contained in the category
+     * @property {string} name The name of the category
+     * @property {string} displayName A different name which may be more suitable for display
+     * @property {string} className CSS classes to apply to the category when it is rendered
+     */
+    /**
+     * @typedef module:databases-view/js/databases-view.DatabasesView~DatabasesViewOptions
+     * @property {module:databases-view/js/databases-view.DatabasesCollection} databasesCollection The resources that the view will display
+     * @property {string} topLevelDisplayName The display name of the top level category
+     * @property {boolean} [forceSelection=false] True if at least one item must always be selected; false otherwise
+     * @property {string} [emptyMessage=''] Message to display if there are no databases
+     * @property {Array&lt;ResourceIdentifier>} [currentSelection] The initially selected databases. If undefined all the databases will be selected
+     * @property {Array&lt;module:databases-view/js/databases-view.DatabasesView~Category>} [childCategories] The categories the databases will be placed in. If undefined all the databases will be in a single category
+     */
+    /**
+     * @name module:databases-view/js/databases-view.DatabasesView
+     * @desc View for showing and selecting HP Haven OnDemand resources.  This is an abstract class and must be supplied
+     * with templates for databases and categories. In addition, six primitive operations must be implemented:
+     * &lt;ul>
+     *     &lt;li> check
+     *     &lt;li> uncheck
+     *     &lt;li> enable
+     *     &lt;li> disable
+     *     &lt;li> determinate
+     *     &lt;li> indeterminate
+     * &lt;/ul>
+     * @param {module:databases-view/js/databases-view.DatabasesView~DatabasesViewOptions} options The options for the view
+     * @constructor
+     * @abstract
+     * @extends Backbone.View
+     */
+    //noinspection JSClosureCompilerSyntax
+    return Backbone.View.extend(/**@lends module:databases-view/js/databases-view.DatabasesView.prototype */{
+        /**
+         * @desc Template for the view. If overriding it should have an element with class databases-list. For empty
+         * message support add an element with class no-active databases
+         * @method
+         */
+        template: _.template('&lt;div class="no-active-databases">&lt;/div>&lt;div class="databases-list">&lt;/div>'),
+
+        /**
+         * @desc Template for an individual database. The element which will respond to user interaction must have
+         * class database-input. The name of the database must be in a data-id attribute. The name of the domain must
+         * be in a data-domain attribute
+         * @abstract
+         * @method
+         */
+        databaseTemplate: $.noop,
+
+        /**
+         * @desc Template for a category. The element which will respond to user interaction must have
+         * class database-input. The name of the category must be in a data-category-id attribute. There must be an
+         * element with class child-categories if child categories are used.
+         * @abstract
+         * @method
+         */
+        categoryTemplate: $.noop,
+
+
+        /**
+         * @desc Perform any initialization required for the database and category inputs to become functional
+         * @abstract
+         * @method
+         */
+        initializeInputs: $.noop,
+
+        /**
+         * @desc Marks the given input as selected
+         * @param {jQuery} input The input to mark
+         * @abstract
+         * @method
+         */
+        check: $.noop,
+
+        /**
+         * @desc Marks the given input as deselected
+         * @param {jQuery} input The input to mark
+         * @abstract
+         * @method
+         */
+        uncheck: $.noop,
+
+        /**
+         * @desc Marks the given input as enabled
+         * @param {jQuery} input The input to mark
+         * @abstract
+         * @method
+         */
+        enable: $.noop,
+
+        /**
+         * @desc Marks the given input as disabled
+         * @param {jQuery} input The input to mark
+         * @abstract
+         * @method
+         */
+        disable: $.noop,
+
+        /**
+         * @desc Marks the given input as determinate
+         * @param {jQuery} input The input to mark
+         * @abstract
+         * @method
+         */
+        determinate: $.noop,
+
+        /**
+         * @desc Marks the given input as indeterminate
+         * @param {jQuery} input The input to mark
+         * @abstract
+         * @method
+         */
+        indeterminate: $.noop,
+
+        initialize: function(options) {
+            this.collection = options.databasesCollection;
+            this.forceSelection = options.forceSelection || false;
+            this.emptyMessage = options.emptyMessage || '';
+
+            this.currentSelection = options.currentSelection;
+
+            if (!this.currentSelection) {
+                this.currentSelection = this.forceSelection ? this.collection.getResourceIdentifiers() : [];
+            }
+
+            if (options.childCategories) {
+                var children = _.chain(options.childCategories)
+                    // find all the categories who have a child in the databases collection
+                    .filter(function(child) {
+                        return this.collection.filter(child.filter).length > 0
+                    }, this)
+                    // add the correct collapse property to each child
+                    .map(function(child) {
+                        child = _.clone(child);
+
+                        var childHasSelection = _.chain(this.currentSelection)
+                            // for every item in the current selection find the corresponding database in the database collection
+                            .map(function(selection) {
+                                return this.collection.findWhere(selection)
+                            }, this)
+                            // throw out any that don't have a database
+                            .compact()
+                            // find a selected database that is in the current category
+                            .find(child.filter)
+                            .value();
+
+                        // if the category has a selected database, don't collapse it
+                        child.collapse = !childHasSelection;
+
+                        return child
+                    }, this)
+                    .value();
+
+                this.hierarchy = {
+                    name: 'all',
+                    displayName: options.topLevelDisplayName,
+                    className: 'list-unstyled',
+                    collapse: false,
+                    children: children
+                };
+            } else {
+                this.hierarchy = {
+                    name: 'all',
+                    displayName: options.topLevelDisplayName,
+                    className: 'list-unstyled'
+                };
+            }
+
+            setParent(this.hierarchy);
+
+            // if node.children, call for each child
+            // else if node has a filter, set up filtering collection and list view
+            // else set up list view
+            var buildHierarchy = _.bind(function(node) {
+                if (node.children) {
+                    _.each(node.children, function(child) {
+                        buildHierarchy(child);
+                    });
+                } else {
+                    if (node.filter) {
+                        node.children = filteredIndexesCollection(node.filter, this.collection);
+                    } else {
+                        node.children = this.collection;
+                    }
+
+                    node.listView = new ListView({
+                        className: 'unstyled break-word',
+                        collection: node.children,
+                        tagName: 'ul',
+                        itemOptions: {
+                            tagName: 'li',
+                            className: 'animated fadeIn',
+                            template: this.databaseTemplate
+                        }
+                    });
+                }
+            }, this);
+
+            // start at this hierarchy
+            buildHierarchy(this.hierarchy, this.collection);
+
+            this.listenTo(this.collection, 'add remove reset', this.updateEmptyMessage);
+
+            this.listenTo(this.collection, 'remove', function(model) {
+                var selectedIndex = _.findWhere(this.currentSelection, model.pick('domain', 'name'));
+
+                if (selectedIndex) {
+                    this.currentSelection = _.without(this.currentSelection, selectedIndex);
+                    this.updateCheckedOptions();
+                    this.triggerChange();
+                }
+            });
+
+            this.listenTo(this.collection, 'reset', function(collection) {
+                if (!_.isEmpty(this.currentSelection)) {
+                    var newItems = collection.getResourceIdentifiers();
+
+                    var newSelection = _.filter(this.currentSelection, function(selectedItem) {
+                        return _.findWhere(newItems, selectedItem)
+                    });
+
+                    if (!_.isEqual(newSelection, this.currentSelection)) {
+                        this.currentSelection = newSelection;
+                        this.triggerChange();
+                    }
+
+                    this.updateCheckedOptions();
+                }
+                else {
+                    // empty selection is everything, which may now be different
+                    this.triggerChange();
+                }
+            });
+        },
+
+        /**
+         * @desc Renders the view
+         * @returns {module:databases-view/js/databases-view.DatabasesView} this
+         */
+        render: function() {
+            this.$el.html(this.template(this.getTemplateOptions()));
+
+            var renderNode = _.bind(function(node, $parentDomElement) {
+                var $nodeEl = $(this.categoryTemplate({
+                    data: {node: node}
+                }));
+
+                var $child = $nodeEl.find('.child-categories');
+
+                $child.addClass('collapse');
+
+                if (node.collapse) {
+                    $nodeEl.find('[data-target]').addClass('collapsed');
+                } else {
+                    $child.addClass('in');
+                }
+
+                if (node.listView) {
+                    node.listView.render();
+
+                    $child.append(node.listView.$el);
+                }
+                else {
+                    _.each(node.children, function(child) {
+                        renderNode(child, $child)
+                    });
+                }
+
+                $parentDomElement.append($nodeEl);
+            }, this);
+
+            this.$databasesList = this.$('.databases-list');
+
+            renderNode(this.hierarchy, this.$databasesList);
+
+            this.$databaseCheckboxes = this.$('.database-input');
+            this.$categoryCheckboxes = this.$('.category-input');
+
+            this.$emptyMessage = this.$('.no-active-databases');
+            this.$emptyMessage.text(this.emptyMessage);
+
+            this.initializeInputs();
+            this.updateCheckedOptions();
+            this.updateEmptyMessage();
+            return this;
+        },
+
+        /**
+         * Returns any parameters required for use in the template. This allows custom templates to take custom parameters
+         * @returns {object} The parameters
+         */
+        getTemplateOptions: function() {
+            return {}
+        },
+
+        /**
+         * Select all the databases
+         */
+        selectAll: function() {
+            // no work to do if everything already selected (either empty selection or full selection)
+            if (!_.isEmpty(this.currentSelection) && this.currentSelection.length !== this.collection.size()) {
+                this.selectCategory('all', !this.forceSelection);
+            }
+        },
+
+        /**
+         * @desc Selects the database with the given name and domain
+         * @param {string} database The name of the database
+         * @param {string} domain The domain of the database
+         * @param {boolean} checked The new state of the database
+         */
+        selectDatabase: function(database, domain, checked) {
+            if (checked) {
+                this.currentSelection.push({
+                    domain: domain,
+                    name: database
+                });
+
+                this.currentSelection = _.uniq(this.currentSelection, function (item) {
+                    // uniq uses reference equality on the transform
+                    return escapeHodIdentifier(item.domain) + ':' + escapeHodIdentifier(item.name);
+                });
+            } else {
+                this.currentSelection = _.reject(this.currentSelection, function (selectedItem) {
+                    return selectedItem.name === database && selectedItem.domain === domain;
+                });
+            }
+
+            this.updateCheckedOptions();
+            this.triggerChange();
+        },
+
+        /**
+         * @desc Selects the category with the given name
+         * @param {string} category
+         * @param {boolean} checked The new state of the category
+         */
+        selectCategory: function(category, checked) {
+            var findNode = function(node, name) {
+                if (node.name === name) {
+                    return node;
+                }
+                else if (_.isArray(node.children)) {
+                    return _.find(node.children, function(child) {
+                        return findNode(child, name);
+                    })
+                }
+            };
+
+            var findDatabases = function(node) {
+                if (_.isArray(node.children)) {
+                    return _.chain(node.children)
+                        .map(function(child) {
+                            return findDatabases(child);
+                        })
+                        .flatten()
+                        .value();
+                }
+                else {
+                    return node.children.map(function(child) {
+                        return child.pick('domain', 'name');
+                    });
+                }
+            };
+
+            var databases = findDatabases(findNode(this.hierarchy, category));
+
+            if (checked) {
+                this.currentSelection = _.chain([this.currentSelection, databases]).flatten().uniq(function (item) {
+                    return escapeHodIdentifier(item.domain) + ':' + escapeHodIdentifier(item.name);
+                }).value();
+            } else {
+                this.currentSelection = _.reject(this.currentSelection, function (selectedItem) {
+                    return _.findWhere(databases, selectedItem);
+                });
+            }
+
+            this.updateCheckedOptions();
+            this.triggerChange();
+        },
+
+        /**
+         * @desc Triggers a change event
+         */
+        triggerChange: function() {
+            this.trigger('change', this.getSelection());
+        },
+
+        /**
+         * @desc Returns the current database selection
+         */
+        getSelection: function() {
+            return _.isEmpty(this.currentSelection) ? this.collection.getResourceIdentifiers() : _.clone(this.currentSelection);
+        },
+
+        /**
+         * @desc Sets the selected databases to a new selection
+         * @param {Array&lt;ResourceIdentifier>} selection The new selection
+         */
+        setSelection: function(selection) {
+            this.currentSelection = selection;
+            this.updateCheckedOptions();
+            this.triggerChange();
+        },
+
+        /**
+         * @desc Updates the view to match the current internal state. There should be no need to call this method
+         * @private
+         */
+        updateCheckedOptions: function() {
+            _.each(this.$databaseCheckboxes.add(this.$categoryCheckboxes), function(checkbox) {
+                var $checkbox = $(checkbox);
+                this.uncheck($checkbox);
+                this.enable($checkbox);
+                this.determinate($checkbox);
+            }, this);
+
+            _.each(this.$databaseCheckboxes, function (checkbox) {
+                var $checkbox = $(checkbox);
+
+                if (_.findWhere(this.currentSelection, {name: $checkbox.attr('data-id'), domain: $checkbox.attr('data-domain')})) {
+                    this.check($checkbox);
+
+                    if (this.forceSelection && this.currentSelection.length === 1) {
+                        this.disable($checkbox);
+                    }
+                }
+            }, this);
+
+            this.updateCategoryCheckbox(this.hierarchy);
+        },
+
+        /**
+         * Updates a category checkbox to match the current internal state. There should be no need to call this method
+         * @param {module:databases-view/js/databases-view.DatabasesView~Category} node The category to update
+         * @returns {Array&lt;ResourceIdentifier>} The resource identifier in the category and its descendants
+         * @private
+         */
+        updateCategoryCheckbox: function(node) {
+            var $categoryCheckbox = this.$('[data-category-id="' + node.name + '"]');
+            var childIndexes;
+
+            if (_.isArray(node.children)) {
+                // traverse each of the child categories recursively
+                // the flatMap gives a list of all the indexes in this category and its descendants
+                childIndexes = _.chain(node.children)
+                    .map(function(child) {
+                        return this.updateCategoryCheckbox(child);
+                    }, this)
+                    .flatten()
+                    .value();
+            }
+            else {
+                // the indexes are the ones in the collection for this category
+                childIndexes = node.children.map(function(child) {
+                    return child.pick('domain', 'name');
+                });
+            }
+
+            // checkedState is an array containing true if there are checked boxes, and false if there are unchecked boxes
+            var checkedState = _.chain(childIndexes)
+                .map(function(childIndex) {
+                    return Boolean(_.findWhere(this.currentSelection, childIndex));
+                }, this)
+                .uniq()
+                .value();
+
+            var checkedBoxes = _.contains(checkedState, true);
+            var unCheckedBoxes = _.contains(checkedState, false);
+
+            if (checkedBoxes && unCheckedBoxes) {
+                this.indeterminate($categoryCheckbox);
+            }
+            else if (checkedBoxes) {
+                // all the category's children are checked
+                this.check($categoryCheckbox);
+
+                // if this category's children comprise the entire selection, it should be disabled
+                // otherwise clicking it would leave an empty database selection
+                if (this.forceSelection && this.currentSelection.length === childIndexes.length) {
+                    this.disable($categoryCheckbox);
+                }
+            }
+            else {
+                this.uncheck($categoryCheckbox);
+            }
+
+            // return the list of child categories for use in the flatMap of the ancestor category
+            return childIndexes;
+        },
+
+        /**
+         * @desc Updates the no databases message to match the current internal state. There should be no need to call this method
+         * @private
+         */
+        updateEmptyMessage: function() {
+            if (this.$emptyMessage && this.$databasesList) {
+                this.$emptyMessage.toggleClass('hide', !this.collection.isEmpty());
+                this.$databasesList.toggleClass('hide', this.collection.isEmpty());
+            }
+        }
+    });
+
+});
+</pre>
+	</article>
+</section>
+
+
+
+
+
+				</div>
+
+				<div class="clearfix"></div>
+				<footer>
+					
+					
+		<span class="copyright">
+		Copyright 2015 Hewlett-Packard Development Company, L.P. Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License.
+		</span>
+					<br />
+					
+		<span class="jsdoc-message">
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a>
+		on Fri Aug 21st 10:28 2015 using the <a
+			href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		</span>
+				</footer>
+			</div>
+
+			
+			<br clear="both">
+		</div>
+
+	</div>
+	<!--<script src="scripts/sunlight.js"></script>-->
+	<script src="scripts/docstrap.lib.js"></script>
+	<script src="scripts/bootstrap-dropdown.js"></script>
+	<script src="scripts/toc.js"></script>
+
+	<script>
+		$( function () {
+			$( "[id*='$']" ).each( function () {
+				var $this = $( this );
+
+				$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+			} );
+
+			$( "#toc" ).toc( {
+				anchorName  : function ( i, heading, prefix ) {
+					return $( heading ).attr( "id" ) || ( prefix + i );
+				},
+				selectors   : "h1,h2,h3,h4",
+				showAndHide : false,
+				scrollTo    : "100px"
+			} );
+
+			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
+			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+			$( '.dropdown-toggle' ).dropdown();
+//			$( ".tutorial-section pre, .readme-section pre" ).addClass( "sunlight-highlight-javascript" ).addClass( "linenums" );
+
+			$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+				var $this = $( this );
+
+				var example = $this.find( "code" );
+				exampleText = example.html();
+				var lang = /{@lang (.*?)}/.exec( exampleText );
+				if ( lang && lang[1] ) {
+					exampleText = exampleText.replace( lang[0], "" );
+					example.html( exampleText );
+					lang = lang[1];
+				} else {
+					lang = "javascript";
+				}
+
+				if ( lang ) {
+
+					$this
+						.addClass( "sunlight-highlight-" + lang )
+						.addClass( "linenums" )
+						.html( example.html() );
+
+				}
+			} );
+
+			Sunlight.highlightAll( {
+				lineNumbers : true,
+				showMenu : true,
+				enableDoclinks : true
+			} );
+		} );
+	 </script>
+
+
+
+	<!--Navigation and Symbol Display-->
+	
+
+
+	<!--Google Analytics-->
+	
+
+</body>
+</html>
