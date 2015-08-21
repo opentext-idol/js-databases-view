@@ -1,18 +1,18 @@
 # HP Autonomy Databases View
 
-[![Build Status](https://travis-ci.org/hpautonomy/databases-view.svg?branch=master)](https://travis-ci.org/hpautonomy/databases-view)
+[![Build Status](https://travis-ci.org/hpautonomy/js-databases-view.svg?branch=master)](https://travis-ci.org/hpautonomy/js-databases-view)
 
 A Backbone View for displaying and selecting HP Haven OnDemand resources.
 
 This project exposes AMD modules. The path to the project root directory must be aliased as databases-view. The module names
 in the documentation reflect this.
 
-Documentation can be found [here](http://hpautonomy.github.io/databases-view).
+Documentation can be found [here](http://hpautonomy.github.io/js-databases-view).
 
 This repo uses git-flow. develop is the development branch. master is the last known good branch.
 
 ## Usage
-    bower install hp-autonomy-databases-view
+    bower install hp-autonomy-js-databases-view
     
 ## Grunt tasks
 * grunt : runs the lint, test, and coverage tasks

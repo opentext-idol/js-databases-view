@@ -1,6 +1,6 @@
 {
-  "name": "hp-autonomy-databases-view",
-  "repository": "https://github.com/hpautonomy/databases-view",
+  "name": "hp-autonomy-js-databases-view",
+  "repository": "https://github.com/hpautonomy/js-databases-view",
   "private": true,
   "devDependencies": {
     "coffeelint": "^1.6.0",
