@@ -31,7 +31,8 @@
   "resolutions": {
     "backbone": "~1.2.1",
     "underscore": "~1.8.3",
-    "jquery": "~1.10.0"
+    "jquery": "~1.10.0",
+    "jasmine": ">=2"
   },
   "devDependencies": {
     "jasmine-jquery": "~2.1.0",
