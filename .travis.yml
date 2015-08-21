@@ -1,0 +1,17 @@
+sudo: false
+language: node_js
+node_js:
+- '0.10'
+branches:
+  only:
+  - master
+  - develop
+env:
+  global:
+  - secure: wHxnoO9MngEGhV1O+8A5x19BA4Chc1LleSgBXZBDDOQFAySI6JFriqgL/E6EB8jcJDvUZPnMZvEUjOPcn2MfrHXmxRiixRgt6BwJt54F2DpesAWOHAPBZGlI8RrNPiyKym7ACFjiyYoEIB0ABW4vX1Vb1alQl6rm6jXQMHewrQmi9yeOBLgCUuanjMbryJYKLSBWaCZCY7ok/EVz7KTZ2h2eWpyYppE11Ov6+6ltxG5kGGA2KeqpbzIC3cSJUpek8Lib6Dd3D1LPJu2CgewOnz8CDiFEul232k1ardOhlidUz/thysxj+oHSAjPZRt+zho9T98gf1JmJN9KtSgP6oljBT3f/aG/ff4LC8cKu/MyYRenDZWyWxmgBZ9wNYxMV1dk512QoluPfEN5oThgKZefvIinBVABO0n8P60zkCMOKwhuSvv9PHN2F4Us41PIkhAgcLAjLLMP/7fON40oecVmvhVe0V0PTs35+JKfJ4vs/MoCX48m4vBbg2wOk2CYbQqlI+zTGMf+hoLZCu5P6Nt6TW0CD0Eu/X+cuG3xslCvY36grIbjh1QG0UwLAMHDPP0Zz1/4rScXKKkqkOQssigXoA/1fhNX9rvv15I0s4My8yGpTfdcrzoAafk1+Om+LiW/nHeO6JKh/gs5HriSX5mdO2Wss4uvfOgY+yZsNcY4=
+before_install:
+- npm install -g grunt-cli
+- npm install -g bower
+- bower install
+script: grunt
+after_script: bash travis.sh

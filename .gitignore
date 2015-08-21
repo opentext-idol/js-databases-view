@@ -1,0 +1,21 @@
+# IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# NPM
+node_modules/
+.bin
+
+# Bower
+bower_components/
+
+# Grunt
+.grunt/
+bin/
+spec-runner.html
+coverage-runner.html
+
+# JSDoc
+doc/
