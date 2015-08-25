@@ -24,7 +24,7 @@ This repo uses git-flow. develop is the development branch. master is the last k
 * grunt watch-doc : Watches for changes and regenerates the documentation
 * grunt watch-test : Watches for changes and reruns the tests
     
-## Is is any good?
+## Is it any good?
 Yes
 
 ## License
