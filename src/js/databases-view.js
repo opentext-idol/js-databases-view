@@ -60,6 +60,21 @@ define([
     };
 
     /**
+     * @typedef module:databases-view/js/databases-view.DatabasesListItemViewOptions
+     * @desc As ListItemViewOptions but specifies some default values
+     * @extends module:js-whatever/js/list-item-view.ListItemView~ListItemViewOptions
+     * @property {string} [tagName=li] The tag name for each database/category
+     * @property {callback} [template=this.databaseTemplate] The template to use for a database
+     */
+    /**
+     * @typedef module:databases-view/js/databases-view.DatabasesListViewOptions
+     * @desc As ListViewOptions but specifies some default values
+     * @extends module:js-whatever/js/list-view.ListView~ListViewOptions
+     * @property {string} [classname=list-unstyled] The classname to apply to the list items
+     * @property {string} [tagName=ul] The tag name for the top level of the view
+     * @property {module:databases-view/js/databases-view.DatabasesListItemViewOptions} itemOptions The options to use for the list items
+     */
+    /**
      * @typedef ResourceIdentifier
      * @property {string} name The name of the resource
      * @property {string} domain The domain of the resource
@@ -97,6 +112,7 @@ define([
      * @property {string} [emptyMessage=''] Message to display if there are no databases
      * @property {Array<ResourceIdentifier>} [currentSelection] The initially selected databases. If undefined all the databases will be selected
      * @property {Array<module:databases-view/js/databases-view.DatabasesView~Category>} [childCategories] The categories the databases will be placed in. If undefined all the databases will be in a single category
+     * @property {module:databases-view/js/databases-view.DatabasesListViewOptions} [listViewOptions] Options used to create the list views
      */
     /**
      * @name module:databases-view/js/databases-view.DatabasesView
@@ -203,6 +219,19 @@ define([
             this.forceSelection = options.forceSelection || false;
             this.emptyMessage = options.emptyMessage || '';
 
+            this.listViewOptions = options.listViewOptions || {};
+            this.listViewOptions.itemOptions = this.listViewOptions.itemOptions || {};
+
+            _.defaults(this.listViewOptions.itemOptions, {
+                tagName: 'li',
+                template: this.databaseTemplate
+            });
+
+            _.defaults(this.listViewOptions, {
+                className: 'list-unstyled',
+                tagName: 'ul'
+            });
+
             this.currentSelection = options.currentSelection;
 
             if (!this.currentSelection) {
@@ -244,16 +273,9 @@ define([
                         node.children = collection;
                     }
 
-                    node.listView = new ListView({
-                        className: 'unstyled break-word',
-                        collection: node.children,
-                        tagName: 'ul',
-                        itemOptions: {
-                            tagName: 'li',
-                            className: 'animated fadeIn',
-                            template: this.databaseTemplate
-                        }
-                    });
+                    node.listView = new ListView(_.extend({
+                        collection: node.children
+                    }, this.listViewOptions));
                 }
             }, this);
 
