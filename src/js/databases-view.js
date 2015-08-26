@@ -29,6 +29,36 @@ define([
         })
     };
 
+    var processCategories = function(categories, collection, currentSelection) {
+        return _.chain(categories)
+            // find all the categories who have a child in the databases collection
+            .filter(function(child) {
+                return collection.filter(child.filter).length > 0
+            })
+            // add the correct collapse property to each child
+            .map(function(child) {
+                child = _.clone(child);
+
+                var childHasSelection = _.chain(currentSelection)
+                    // for every item in the current selection find the corresponding database in the database collection
+                    .map(function(selection) {
+                        return collection.findWhere(selection)
+                    }, this)
+                    // throw out any that don't have a database
+                    .compact()
+                    // find a selected database that is in the current category
+                    .find(child.filter)
+                    .value();
+
+                // if the category has a selected database, don't collapse it
+                // if we're not forcing selection and the selection is empty (i.e. everything is implicitly selected), don't collapse it
+                child.collapse = !(childHasSelection || (!this.forceSelection && _.isEmpty(currentSelection)));
+
+                return child
+            })
+            .value()
+    };
+
     /**
      * @typedef ResourceIdentifier
      * @property {string} name The name of the resource
@@ -180,32 +210,7 @@ define([
             }
 
             if (options.childCategories) {
-                var children = _.chain(options.childCategories)
-                    // find all the categories who have a child in the databases collection
-                    .filter(function(child) {
-                        return this.collection.filter(child.filter).length > 0
-                    }, this)
-                    // add the correct collapse property to each child
-                    .map(function(child) {
-                        child = _.clone(child);
-
-                        var childHasSelection = _.chain(this.currentSelection)
-                            // for every item in the current selection find the corresponding database in the database collection
-                            .map(function(selection) {
-                                return this.collection.findWhere(selection)
-                            }, this)
-                            // throw out any that don't have a database
-                            .compact()
-                            // find a selected database that is in the current category
-                            .find(child.filter)
-                            .value();
-
-                        // if the category has a selected database, don't collapse it
-                        child.collapse = !childHasSelection;
-
-                        return child
-                    }, this)
-                    .value();
+                var children = processCategories(options.childCategories, this.collection, this.currentSelection);
 
                 this.hierarchy = {
                     name: 'all',
@@ -227,16 +232,16 @@ define([
             // if node.children, call for each child
             // else if node has a filter, set up filtering collection and list view
             // else set up list view
-            var buildHierarchy = _.bind(function(node) {
+            var buildHierarchy = _.bind(function(node, collection) {
                 if (node.children) {
                     _.each(node.children, function(child) {
-                        buildHierarchy(child);
+                        buildHierarchy(child, collection);
                     });
                 } else {
                     if (node.filter) {
-                        node.children = filteredIndexesCollection(node.filter, this.collection);
+                        node.children = filteredIndexesCollection(node.filter, collection);
                     } else {
-                        node.children = this.collection;
+                        node.children = collection;
                     }
 
                     node.listView = new ListView({
@@ -287,6 +292,19 @@ define([
                     this.triggerChange();
                 }
             });
+
+            if(options.childCategories) {
+                // if the databases change, we need to recalculate category collapsing and visibility
+                this.listenTo(this.collection, 'reset update', function() {
+                    //TODO: clean up old list views
+
+                    this.hierarchy.children = processCategories(options.childCategories, this.collection, this.currentSelection);
+
+                    buildHierarchy(this.hierarchy, this.collection);
+
+                    this.render();
+                });
+            }
         },
 
         /**
