@@ -337,6 +337,8 @@ define([
                     buildHierarchy(this.hierarchy, this.collection);
 
                     this.render();
+
+                    this.triggerChange();
                 });
             }
         },
@@ -598,7 +600,7 @@ define([
         },
 
         /**
-         * @desc Updates the no databases message to match the current internal state. There should be no need to call this method
+         * @desc Updates the no databases message to match the current internal state. There should be noneed to call this method
          * @private
          */
         updateEmptyMessage: function() {
