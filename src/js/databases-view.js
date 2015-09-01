@@ -29,6 +29,51 @@ define([
         })
     };
 
+    var processCategories = function(categories, collection, currentSelection) {
+        return _.chain(categories)
+            // find all the categories who have a child in the databases collection
+            .filter(function(child) {
+                return collection.filter(child.filter).length > 0
+            })
+            // add the correct collapse property to each child
+            .map(function(child) {
+                child = _.clone(child);
+
+                var childHasSelection = _.chain(currentSelection)
+                    // for every item in the current selection find the corresponding database in the database collection
+                    .map(function(selection) {
+                        return collection.findWhere(selection)
+                    }, this)
+                    // throw out any that don't have a database
+                    .compact()
+                    // find a selected database that is in the current category
+                    .find(child.filter)
+                    .value();
+
+                // if the category has a selected database, don't collapse it
+                // if we're not forcing selection and the selection is empty (i.e. everything is implicitly selected), don't collapse it
+                child.collapse = !(childHasSelection || (!this.forceSelection && _.isEmpty(currentSelection)));
+
+                return child
+            })
+            .value()
+    };
+
+    /**
+     * @typedef module:databases-view/js/databases-view.DatabasesListItemViewOptions
+     * @desc As ListItemViewOptions but specifies some default values
+     * @extends module:js-whatever/js/list-item-view.ListItemView~ListItemViewOptions
+     * @property {string} [tagName=li] The tag name for each database/category
+     * @property {callback} [template=this.databaseTemplate] The template to use for a database
+     */
+    /**
+     * @typedef module:databases-view/js/databases-view.DatabasesListViewOptions
+     * @desc As ListViewOptions but specifies some default values
+     * @extends module:js-whatever/js/list-view.ListView~ListViewOptions
+     * @property {string} [classname=list-unstyled] The classname to apply to the list items
+     * @property {string} [tagName=ul] The tag name for the top level of the view
+     * @property {module:databases-view/js/databases-view.DatabasesListItemViewOptions} itemOptions The options to use for the list items
+     */
     /**
      * @typedef ResourceIdentifier
      * @property {string} name The name of the resource
@@ -67,6 +112,7 @@ define([
      * @property {string} [emptyMessage=''] Message to display if there are no databases
      * @property {Array<ResourceIdentifier>} [currentSelection] The initially selected databases. If undefined all the databases will be selected
      * @property {Array<module:databases-view/js/databases-view.DatabasesView~Category>} [childCategories] The categories the databases will be placed in. If undefined all the databases will be in a single category
+     * @property {module:databases-view/js/databases-view.DatabasesListViewOptions} [listViewOptions] Options used to create the list views
      */
     /**
      * @name module:databases-view/js/databases-view.DatabasesView
@@ -173,6 +219,19 @@ define([
             this.forceSelection = options.forceSelection || false;
             this.emptyMessage = options.emptyMessage || '';
 
+            this.listViewOptions = options.listViewOptions || {};
+            this.listViewOptions.itemOptions = this.listViewOptions.itemOptions || {};
+
+            _.defaults(this.listViewOptions.itemOptions, {
+                tagName: 'li',
+                template: this.databaseTemplate
+            });
+
+            _.defaults(this.listViewOptions, {
+                className: 'list-unstyled',
+                tagName: 'ul'
+            });
+
             this.currentSelection = options.currentSelection;
 
             if (!this.currentSelection) {
@@ -180,32 +239,7 @@ define([
             }
 
             if (options.childCategories) {
-                var children = _.chain(options.childCategories)
-                    // find all the categories who have a child in the databases collection
-                    .filter(function(child) {
-                        return this.collection.filter(child.filter).length > 0
-                    }, this)
-                    // add the correct collapse property to each child
-                    .map(function(child) {
-                        child = _.clone(child);
-
-                        var childHasSelection = _.chain(this.currentSelection)
-                            // for every item in the current selection find the corresponding database in the database collection
-                            .map(function(selection) {
-                                return this.collection.findWhere(selection)
-                            }, this)
-                            // throw out any that don't have a database
-                            .compact()
-                            // find a selected database that is in the current category
-                            .find(child.filter)
-                            .value();
-
-                        // if the category has a selected database, don't collapse it
-                        child.collapse = !childHasSelection;
-
-                        return child
-                    }, this)
-                    .value();
+                var children = processCategories(options.childCategories, this.collection, this.currentSelection);
 
                 this.hierarchy = {
                     name: 'all',
@@ -227,28 +261,21 @@ define([
             // if node.children, call for each child
             // else if node has a filter, set up filtering collection and list view
             // else set up list view
-            var buildHierarchy = _.bind(function(node) {
+            var buildHierarchy = _.bind(function(node, collection) {
                 if (node.children) {
                     _.each(node.children, function(child) {
-                        buildHierarchy(child);
+                        buildHierarchy(child, collection);
                     });
                 } else {
                     if (node.filter) {
-                        node.children = filteredIndexesCollection(node.filter, this.collection);
+                        node.children = filteredIndexesCollection(node.filter, collection);
                     } else {
-                        node.children = this.collection;
+                        node.children = collection;
                     }
 
-                    node.listView = new ListView({
-                        className: 'unstyled break-word',
-                        collection: node.children,
-                        tagName: 'ul',
-                        itemOptions: {
-                            tagName: 'li',
-                            className: 'animated fadeIn',
-                            template: this.databaseTemplate
-                        }
-                    });
+                    node.listView = new ListView(_.extend({
+                        collection: node.children
+                    }, this.listViewOptions));
                 }
             }, this);
 
@@ -287,6 +314,33 @@ define([
                     this.triggerChange();
                 }
             });
+
+            if(options.childCategories) {
+                // if the databases change, we need to recalculate category collapsing and visibility
+                this.listenTo(this.collection, 'reset update', function() {
+                    var removeListViews = function(node) {
+                        if (node.listView) {
+                            node.listView.remove();
+                        }
+
+                        if (_.isArray(node.children)) {
+                            _.each(node.children, function(child) {
+                                removeListViews(child);
+                            })
+                        }
+                    };
+
+                    removeListViews(this.hierarchy);
+
+                    this.hierarchy.children = processCategories(options.childCategories, this.collection, this.currentSelection);
+
+                    buildHierarchy(this.hierarchy, this.collection);
+
+                    this.render();
+
+                    this.triggerChange();
+                });
+            }
         },
 
         /**
