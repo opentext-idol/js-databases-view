@@ -25,7 +25,7 @@ define([
 
     var TestDatabaseView = DatabasesView.extend({
         categoryTemplate: _.template('<div><input type="checkbox" data-category-id="<%-data.node.name%>" class="category-input"> <%-data.node.displayName%><div class="child-categories"></div></div>'),
-        databaseTemplate: _.template('<input type="checkbox" data-id="<%-data.id%>" data-domain="<%-data.domain%>" class="database-input"> <%-data.id%>'),
+        databaseTemplate: _.template('<input type="checkbox" data-name="<%-data.name%>" data-domain="<%-data.domain%>" class="database-input"> <%-data.name%>'),
         check: function($input) {
             $input.prop('checked', true);
         },
@@ -390,7 +390,7 @@ define([
                         });
 
                         it('should have disabled the remaining database', function() {
-                            expect(this.databasesView.$('.database-input[data-id="DB2"]')).toHaveProp('disabled', true);
+                            expect(this.databasesView.$('.database-input[data-name="DB2"]')).toHaveProp('disabled', true);
                         });
 
                         it('should have unchecked the all checkbox', function() {
@@ -438,7 +438,7 @@ define([
                     });
 
                     it('should have disabled the selected database', function() {
-                        expect(this.databasesView.$('.database-input[data-id="DB1"]')).toHaveProp('disabled', true);
+                        expect(this.databasesView.$('.database-input[data-name="DB1"]')).toHaveProp('disabled', true);
                     });
 
                     it('should not have selected the all checkbox', function() {
