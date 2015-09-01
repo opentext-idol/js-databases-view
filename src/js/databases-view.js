@@ -142,7 +142,7 @@ define([
 
         /**
          * @desc Template for an individual database. The element which will respond to user interaction must have
-         * class database-input. The name of the database must be in a data-id attribute. The name of the domain must
+         * class database-input. The name of the database must be in a data-name attribute. The name of the domain must
          * be in a data-domain attribute
          * @abstract
          * @method
@@ -528,7 +528,7 @@ define([
             _.each(this.$databaseCheckboxes, function (checkbox) {
                 var $checkbox = $(checkbox);
 
-                if (_.findWhere(this.currentSelection, {name: $checkbox.attr('data-id'), domain: $checkbox.attr('data-domain')})) {
+                if (_.findWhere(this.currentSelection, {name: $checkbox.attr('data-name'), domain: $checkbox.attr('data-domain')})) {
                     this.check($checkbox);
 
                     if (this.forceSelection && this.currentSelection.length === 1) {
