@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>HP Autonomy Databases View Modules</title>
+	<title>HP Autonomy Databases View Source: databases-collection.js</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -68,98 +68,78 @@
 	<div class="row-fluid">
 
 		
-		<div class="span8">
-			
+			<div class="span12">
+				
 				<div id="main">
 					
 
 
-	<h1 class="page-title">Modules</h1>
+		<h1 class="page-title">Source: databases-collection.js</h1>
+    
 <section>
+	<article>
+		<pre
+			class="sunlight-highlight-javascript linenums">/*
+ * Copyright 2015 Hewlett-Packard Development Company, L.P.
+ * Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License.
+ */
 
-<header>
-    <h2>
-    
-    </h2>
-    
-</header>
+/**
+ * @module databases-view/js/databases-collection
+ */
+define([
+    'backbone',
+    'underscore',
+    'js-whatever/js/escape-hod-identifier'
+], function(Backbone, _, escapeHodIdentifier) {
 
-<article>
-    <div class="container-overview">
-    
+    /**
+     * @name module:databases-view/js/databases-collection.DatabaseModel
+     * @desc Model representing a single HOD resource. Must have at least a domain and a name attribute.
+     * @constructor
+     * @extends Backbone.Model
+     */
+    var DatabaseModel = Backbone.Model.extend(/** @lends module:databases-view/js/databases-collection.DatabaseModel.prototype */{
+        /**
+         * @desc Convert the model to an object with a domain and a name property.
+         * @returns {ResourceIdentifier}
+         * @function
+         */
+        toResourceIdentifier: function() {
+            return this.pick('domain', 'name');
+        }
+    });
 
-    
-        
+    /**
+     * @name module:databases-view/js/databases-collection.DatabasesCollection
+     * @desc Collection representing a set of HOD resources. Each model must have a domain and a name attribute.
+     * @constructor
+     * @see {module:databases-view/js/databases-collection.DatabaseModel}
+     * @extends Backbone.Collection
+     */
+    return Backbone.Collection.extend(/** @lends module:databases-view/js/databases-collection.DatabasesCollection.prototype */{
+        model: DatabaseModel,
 
-        
-<dl class="details">
-	
+        modelId: function(attributes) {
+            // HOD resources are the same when they have the same domain and name
+            return escapeHodIdentifier(attributes.domain) + ':' + escapeHodIdentifier(attributes.name);
+        },
 
-	
+        /**
+         * @desc Convert the collection to an array of objects with a domain and a name property.
+         * @returns {ResourceIdentifier}
+         * @function
+         */
+        toResourceIdentifiers: function() {
+            return this.invoke('toResourceIdentifier');
+        }
+    });
 
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Classes</h3>
-
-        <dl>
-            <dt><a href="databases-collection.DatabaseModel.html">DatabaseModel</a></dt>
-            <dd></dd>
-        
-            <dt><a href="databases-collection.DatabasesCollection.html">DatabasesCollection</a></dt>
-            <dd></dd>
-        
-            <dt><a href="databases-view.DatabasesView.html">DatabasesView</a></dt>
-            <dd></dd>
-        </dl>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
+});
+</pre>
+	</article>
 </section>
+
 
 
 
@@ -183,10 +163,6 @@
 				</footer>
 			</div>
 
-			
-			<div class="span3">
-				<div id="toc"></div>
-			</div>
 			
 			<br clear="both">
 		</div>

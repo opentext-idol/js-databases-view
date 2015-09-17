@@ -28,6 +28,10 @@
 					<ul class="dropdown-menu ">
 						
 						<li>
+							<a href="databases-collection.html">databases-view/js/databases-collection</a>
+						</li>
+						
+						<li>
 							<a href="databases-view.html">databases-view/js/databases-view</a>
 						</li>
 						
@@ -42,7 +46,11 @@
 					<ul class="dropdown-menu ">
 						
 						<li>
-							<a href="databases-view.DatabasesCollection.html">databases-view/js/databases-view.DatabasesCollection</a>
+							<a href="databases-collection.DatabaseModel.html">databases-view/js/databases-collection.DatabaseModel</a>
+						</li>
+						
+						<li>
+							<a href="databases-collection.DatabasesCollection.html">databases-view/js/databases-collection.DatabasesCollection</a>
 						</li>
 						
 						<li>
@@ -81,11 +89,12 @@
  */
 define([
     'backbone',
+    'jquery',
     'underscore',
     'js-whatever/js/list-view',
     'js-whatever/js/filtering-collection',
     'js-whatever/js/escape-hod-identifier'
-], function(Backbone, _, ListView, FilteringCollection, escapeHodIdentifier) //noinspection JSClosureCompilerSyntax
+], function(Backbone, $, _, ListView, FilteringCollection, escapeHodIdentifier) //noinspection JSClosureCompilerSyntax
 {
 
     var filteredIndexesCollection = function(filter, databasesCollection) {
@@ -99,14 +108,14 @@ define([
         _.each(category.children, function(child) {
             child.parent = category;
             setParent(child);
-        })
+        });
     };
 
     var processCategories = function(categories, collection, currentSelection) {
         return _.chain(categories)
             // find all the categories who have a child in the databases collection
             .filter(function(child) {
-                return collection.filter(child.filter).length > 0
+                return collection.filter(child.filter).length > 0;
             })
             // add the correct collapse property to each child
             .map(function(child) {
@@ -115,7 +124,7 @@ define([
                 var childHasSelection = _.chain(currentSelection)
                     // for every item in the current selection find the corresponding database in the database collection
                     .map(function(selection) {
-                        return collection.findWhere(selection)
+                        return collection.findWhere(selection);
                     }, this)
                     // throw out any that don't have a database
                     .compact()
@@ -127,9 +136,9 @@ define([
                 // if we're not forcing selection and the selection is empty (i.e. everything is implicitly selected), don't collapse it
                 child.collapse = !(childHasSelection || (!this.forceSelection && _.isEmpty(currentSelection)));
 
-                return child
+                return child;
             })
-            .value()
+            .value();
     };
 
     /**
@@ -153,18 +162,6 @@ define([
      * @property {string} domain The domain of the resource
      */
     /**
-     * Returns the resource identifier representations of the models in the collection
-     * @callback module:databases-view/js/databases-view.DatabasesCollection~getResourceIdentifiers
-     * @returns {Array&lt;ResourceIdentifier>} The resource identifiers of the models in the collection
-     */
-    /**
-     * @typedef module:databases-view/js/databases-view.DatabasesCollection
-     * @desc A Backbone Collection for holding the databases
-     * @class
-     * @extends Backbone.Collection
-     * @property {module:databases-view/js/databases-view.DatabasesCollection~getResourceIdentifiers} getResourceIdentifiers
-     */
-    /**
      * Function that describes the databases that a category contains
      * @callback module:databases-view/js/databases-view.DatabasesView~CategoryFilter
      * @param {Backbone.Model} model The database model
@@ -179,11 +176,11 @@ define([
      */
     /**
      * @typedef module:databases-view/js/databases-view.DatabasesView~DatabasesViewOptions
-     * @property {module:databases-view/js/databases-view.DatabasesCollection} databasesCollection The resources that the view will display
+     * @property {module:databases-view/js/databases-collection.DatabasesCollection} databasesCollection The resources that the view will display
+     * @property {module:databases-view/js/databases-collection.DatabasesCollection} selectedDatabasesCollection The currently selected resources
      * @property {string} topLevelDisplayName The display name of the top level category
      * @property {boolean} [forceSelection=false] True if at least one item must always be selected; false otherwise
      * @property {string} [emptyMessage=''] Message to display if there are no databases
-     * @property {Array&lt;ResourceIdentifier>} [currentSelection] The initially selected databases. If undefined all the databases will be selected
      * @property {Array&lt;module:databases-view/js/databases-view.DatabasesView~Category>} [childCategories] The categories the databases will be placed in. If undefined all the databases will be in a single category
      * @property {module:databases-view/js/databases-view.DatabasesListViewOptions} [listViewOptions] Options used to create the list views
      */
@@ -199,6 +196,8 @@ define([
      *     &lt;li> determinate
      *     &lt;li> indeterminate
      * &lt;/ul>
+     * The selected databases collection will be kept up to date with the state of the UI, and changes made to the collection
+     * will be reflected in the view.
      * @param {module:databases-view/js/databases-view.DatabasesView~DatabasesViewOptions} options The options for the view
      * @constructor
      * @abstract
@@ -289,6 +288,7 @@ define([
 
         initialize: function(options) {
             this.collection = options.databasesCollection;
+            this.selectedDatabasesCollection = options.selectedDatabasesCollection;
             this.forceSelection = options.forceSelection || false;
             this.emptyMessage = options.emptyMessage || '';
 
@@ -305,10 +305,10 @@ define([
                 tagName: 'ul'
             });
 
-            this.currentSelection = options.currentSelection;
-
-            if (!this.currentSelection) {
-                this.currentSelection = this.forceSelection ? this.collection.getResourceIdentifiers() : [];
+            if (!this.forceSelection && this.selectedDatabasesCollection.length === this.collection.length) {
+                this.currentSelection = [];
+            } else {
+                this.currentSelection = this.selectedDatabasesCollection.toResourceIdentifiers();
             }
 
             if (options.childCategories) {
@@ -363,28 +363,36 @@ define([
                 if (selectedIndex) {
                     this.currentSelection = _.without(this.currentSelection, selectedIndex);
                     this.updateCheckedOptions();
-                    this.triggerChange();
+                    this.updateSelectedDatabases();
                 }
             });
 
             this.listenTo(this.collection, 'reset', function(collection) {
                 if (!_.isEmpty(this.currentSelection)) {
-                    var newItems = collection.getResourceIdentifiers();
+                    var newItems = collection.toResourceIdentifiers();
 
                     var newSelection = _.filter(this.currentSelection, function(selectedItem) {
-                        return _.findWhere(newItems, selectedItem)
+                        return _.findWhere(newItems, selectedItem);
                     });
 
                     if (!_.isEqual(newSelection, this.currentSelection)) {
                         this.currentSelection = newSelection;
-                        this.triggerChange();
+                        this.updateSelectedDatabases();
                     }
 
                     this.updateCheckedOptions();
                 }
                 else {
                     // empty selection is everything, which may now be different
-                    this.triggerChange();
+                    this.updateSelectedDatabases();
+                }
+            });
+
+            this.listenTo(this.selectedDatabasesCollection, 'update reset', function() {
+                // Empty current selection means all selected; if we still have everything selected then there is no work to do
+                if (!(_.isEmpty(this.currentSelection) && this.selectedDatabasesCollection.length === this.collection.length)) {
+                    this.currentSelection = this.selectedDatabasesCollection.toResourceIdentifiers();
+                    this.updateCheckedOptions();
                 }
             });
 
@@ -399,7 +407,7 @@ define([
                         if (_.isArray(node.children)) {
                             _.each(node.children, function(child) {
                                 removeListViews(child);
-                            })
+                            });
                         }
                     };
 
@@ -411,7 +419,7 @@ define([
 
                     this.render();
 
-                    this.triggerChange();
+                    this.updateSelectedDatabases();
                 });
             }
         },
@@ -445,7 +453,7 @@ define([
                 }
                 else {
                     _.each(node.children, function(child) {
-                        renderNode(child, $child)
+                        renderNode(child, $child);
                     });
                 }
 
@@ -473,17 +481,7 @@ define([
          * @returns {object} The parameters
          */
         getTemplateOptions: function() {
-            return {}
-        },
-
-        /**
-         * Select all the databases
-         */
-        selectAll: function() {
-            // no work to do if everything already selected (either empty selection or full selection)
-            if (!_.isEmpty(this.currentSelection) && this.currentSelection.length !== this.collection.size()) {
-                this.selectCategory('all', !this.forceSelection);
-            }
+            return {};
         },
 
         /**
@@ -510,7 +508,7 @@ define([
             }
 
             this.updateCheckedOptions();
-            this.triggerChange();
+            this.updateSelectedDatabases();
         },
 
         /**
@@ -526,7 +524,7 @@ define([
                 else if (_.isArray(node.children)) {
                     return _.find(node.children, function(child) {
                         return findNode(child, name);
-                    })
+                    });
                 }
             };
 
@@ -559,31 +557,14 @@ define([
             }
 
             this.updateCheckedOptions();
-            this.triggerChange();
+            this.updateSelectedDatabases();
         },
 
         /**
-         * @desc Triggers a change event
+         * @desc Updates the selected databases collection with the state of the UI
          */
-        triggerChange: function() {
-            this.trigger('change', this.getSelection());
-        },
-
-        /**
-         * @desc Returns the current database selection
-         */
-        getSelection: function() {
-            return _.isEmpty(this.currentSelection) ? this.collection.getResourceIdentifiers() : _.clone(this.currentSelection);
-        },
-
-        /**
-         * @desc Sets the selected databases to a new selection
-         * @param {Array&lt;ResourceIdentifier>} selection The new selection
-         */
-        setSelection: function(selection) {
-            this.currentSelection = selection;
-            this.updateCheckedOptions();
-            this.triggerChange();
+        updateSelectedDatabases: function() {
+            this.selectedDatabasesCollection.set(_.isEmpty(this.currentSelection) ? this.collection.toResourceIdentifiers() : this.currentSelection);
         },
 
         /**
@@ -706,7 +687,7 @@ define([
 					
 		<span class="jsdoc-message">
 		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a>
-		on Tue Sep 1st 16:41 2015 using the <a
+		on Thu Sep 17th 17:04 2015 using the <a
 			href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
 		</span>
 				</footer>
