@@ -41,7 +41,7 @@ define([
 
         modelId: function(attributes) {
             // HOD resources are the same when they have the same domain and name
-            return escapeHodIdentifier(attributes.domain) + ':' + escapeHodIdentifier(attributes.name);
+            return attributes.domain ? escapeHodIdentifier(attributes.domain) + ':' + escapeHodIdentifier(attributes.name) : attributes.name;
         },
 
         /**
