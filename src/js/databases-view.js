@@ -418,11 +418,11 @@ define([
 
                 this.currentSelection = _.uniq(this.currentSelection, function (item) {
                     // uniq uses reference equality on the transform
-                    return escapeHodIdentifier(item.domain) + ':' + escapeHodIdentifier(item.name);
+                    return item.domain ? escapeHodIdentifier(item.domain) + ':' + escapeHodIdentifier(item.name) : item.name;
                 });
             } else {
                 this.currentSelection = _.reject(this.currentSelection, function (selectedItem) {
-                    return selectedItem.name === database && selectedItem.domain === domain;
+                    return selectedItem.name === database && (selectedItem.domain === domain || !selectedItem.domain && !domain);
                 });
             }
 
@@ -467,7 +467,7 @@ define([
 
             if (checked) {
                 this.currentSelection = _.chain([this.currentSelection, databases]).flatten().uniq(function (item) {
-                    return escapeHodIdentifier(item.domain) + ':' + escapeHodIdentifier(item.name);
+                    return item.domain ? escapeHodIdentifier(item.domain) + ':' + escapeHodIdentifier(item.name) : item.name;
                 }).value();
             } else {
                 this.currentSelection = _.reject(this.currentSelection, function (selectedItem) {
@@ -501,7 +501,13 @@ define([
             _.each(this.$databaseCheckboxes, function (checkbox) {
                 var $checkbox = $(checkbox);
 
-                if (_.findWhere(this.currentSelection, {name: $checkbox.attr('data-name'), domain: $checkbox.attr('data-domain')})) {
+                var findArguments = {name: $checkbox.attr('data-name')};
+                var domain = $checkbox.attr('data-domain');
+                if (domain) {
+                    findArguments.domain = domain;
+                }
+
+                if (_.findWhere(this.currentSelection, findArguments)) {
                     this.check($checkbox);
 
                     if (this.forceSelection && this.currentSelection.length === 1) {
