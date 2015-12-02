@@ -315,16 +315,16 @@ define([
                 }
             });
 
-            if(options.childCategories) {
-                // if the databases change, we need to recalculate category collapsing and visibility
-                this.listenTo(this.collection, 'reset update', function() {
-                    var removeListViews = function(node) {
+            // if the databases change, we need to recalculate category collapsing and visibility
+            this.listenTo(this.collection, 'reset update', function() {
+                if (options.childCategories) {
+                    var removeListViews = function (node) {
                         if (node.listView) {
                             node.listView.remove();
                         }
 
                         if (_.isArray(node.children)) {
-                            _.each(node.children, function(child) {
+                            _.each(node.children, function (child) {
                                 removeListViews(child);
                             });
                         }
@@ -335,12 +335,12 @@ define([
                     this.hierarchy.children = processCategories(options.childCategories, this.collection, this.currentSelection);
 
                     buildHierarchy(this.hierarchy, this.collection);
+                }
 
-                    this.render();
+                this.render();
 
-                    this.updateSelectedDatabases();
-                });
-            }
+                this.updateSelectedDatabases();
+            });
         },
 
         /**
