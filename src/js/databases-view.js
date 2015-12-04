@@ -471,7 +471,7 @@ define([
                 }).value();
             } else {
                 this.currentSelection = _.reject(this.currentSelection, function (selectedItem) {
-                    return _.findWhere(databases, selectedItem);
+                    return _.findWhere(databases,  selectedItem.domain ? selectedItem : {name: selectedItem.name});
                 });
             }
 
