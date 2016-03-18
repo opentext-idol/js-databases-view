@@ -265,9 +265,11 @@ define([
                         node.children = collection;
                     }
 
-                    node.listView = new ListView(_.extend({
-                        collection: node.children
-                    }, this.listViewOptions));
+                    node.listView = new ListView(_.extend(
+                        {useCollectionChange: false},
+                        this.listViewOptions,
+                        {collection: node.children}
+                    ));
                 }
             }, this);
 
