@@ -761,6 +761,44 @@ define([
                 });
             });
         });
+
+        describe('with a filter model', function() {
+            beforeEach(function() {
+                var databases = [
+                    {id: 'DB1', name: 'onion beverages', domain: 'PUBLIC_INDEXES'},
+                    {id: 'DB2', name: 'cloud interpretations', domain: 'PUBLIC_INDEXES'},
+                    {id: 'DB3', name: 'concrete', domain: 'PRIVATE_INDEXES'},
+                    {id: 'DB4', name: 'anions', domain: 'PRIVATE_INDEXES'}
+                ];
+
+                this.selectedDatabasesCollection = new DatabasesCollection(databases);
+                this.databasesCollection = new DatabasesCollection(databases);
+
+                this.filterModel = new Backbone.Model();
+
+                this.databasesView = new TestDatabaseView({
+                    childCategories: childCategories,
+                    databasesCollection: this.databasesCollection,
+                    emptyMessage: EMPTY_MESSAGE,
+                    filterModel: this.filterModel,
+                    selectedDatabasesCollection: this.selectedDatabasesCollection,
+                    topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME
+                });
+
+                this.databasesView.render();
+
+                this.databasesCollection.reset(databases);
+            });
+
+            it('should show all databases', function() {
+                expect(this.databasesView.$('.database-input')).toHaveLength(4);
+            });
+
+            it('should display all the indexes incompletely matched by the filter', function() {
+                this.filterModel.set('text', 'ions');
+                expect(this.databasesView.$('.database-input')).toHaveLength(2);
+            });
+        })
     });
 
 });
