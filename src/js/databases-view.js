@@ -16,12 +16,36 @@ define([
 ], function(Backbone, $, _, ListView, FilteringCollection, escapeHodIdentifier) //noinspection JSClosureCompilerSyntax
 {
 
-    var filteredIndexesCollection = function(filter, databasesCollection) {
+    function searchMatches(text, search) {
+        return text.toLowerCase().indexOf(search.toLowerCase()) > -1;
+    }
+
+    function getTextFilter(filterModel) {
+        return function(model) {
+            var search = filterModel.get('text');
+            return !search || searchMatches(model.get('name'), search);
+        };
+    }
+
+    var filteredIndexesCollection = function(nodeFilter, databasesCollection, filterModel) {
+        var firstFilter = nodeFilter || _.constant(true);
+        var textFilter = filterModel ? getTextFilter(filterModel) : _.constant(true);
+
         return new FilteringCollection([], {
             collection: databasesCollection,
-            modelFilter: filter
+            modelFilter: function(model) {
+                return textFilter(model) && firstFilter(model);
+            }
         });
     };
+
+    function filterNode(node) {
+        if (_.isArray(node.children)) {
+            _.each(node.children, filterNode);
+        } else {
+            node.children.filter();
+        }
+    }
 
     var setParent = function(category) {
         _.each(category.children, function(child) {
@@ -208,6 +232,8 @@ define([
         initialize: function(options) {
             this.collection = options.databasesCollection;
             this.selectedDatabasesCollection = options.selectedDatabasesCollection;
+            this.filterModel = options.filterModel;
+
             this.forceSelection = options.forceSelection || false;
             this.emptyMessage = options.emptyMessage || '';
 
@@ -259,11 +285,7 @@ define([
                         buildHierarchy(child, collection);
                     });
                 } else {
-                    if (node.filter) {
-                        node.children = filteredIndexesCollection(node.filter, collection);
-                    } else {
-                        node.children = collection;
-                    }
+                    node.children = filteredIndexesCollection(node.filter, collection, this.filterModel);
 
                     node.listView = new ListView(_.extend(
                         {useCollectionChange: false},
@@ -343,6 +365,13 @@ define([
 
                 this.updateSelectedDatabases();
             });
+
+            if (this.filterModel) {
+                this.listenTo(this.filterModel, 'change', function () {
+                    filterNode(this.hierarchy);
+                    this.updateCheckedOptions();
+                });
+            }
         },
 
         /**
@@ -473,7 +502,7 @@ define([
                 }).value();
             } else {
                 this.currentSelection = _.reject(this.currentSelection, function (selectedItem) {
-                    return _.findWhere(databases,  selectedItem.domain ? selectedItem : {name: selectedItem.name});
+                    return _.findWhere(databases, selectedItem.domain ? selectedItem : {name: selectedItem.name});
                 });
             }
 
@@ -493,18 +522,22 @@ define([
          * @private
          */
         updateCheckedOptions: function() {
-            _.each(this.$databaseCheckboxes.add(this.$categoryCheckboxes), function(checkbox) {
+            var $databaseInputs = this.$('.database-input');
+
+            this.uncheck(this.$categoryCheckboxes);
+            this.enable(this.$categoryCheckboxes);
+            this.determinate(this.$categoryCheckboxes);
+
+            _.each($databaseInputs, function(checkbox) {
                 var $checkbox = $(checkbox);
+
                 this.uncheck($checkbox);
                 this.enable($checkbox);
                 this.determinate($checkbox);
-            }, this);
-
-            _.each(this.$databaseCheckboxes, function (checkbox) {
-                var $checkbox = $(checkbox);
 
                 var findArguments = {name: $checkbox.attr('data-name')};
                 var domain = $checkbox.attr('data-domain');
+
                 if (domain) {
                     findArguments.domain = domain;
                 }
