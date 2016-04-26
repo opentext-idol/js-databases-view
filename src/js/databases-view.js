@@ -288,11 +288,11 @@ define([
                         buildHierarchy(child, collection);
                     });
                 } else {
-                    var collection = filteredIndexesCollection(node.filter, collection, this.filterModel);
+                    var nodeCollection = filteredIndexesCollection(node.filter, collection, this.filterModel);
 
-                    node.children = collection;
+                    node.children = nodeCollection;
 
-                    this.filteredIndexesCollections.push(collection);
+                    this.filteredIndexesCollections.push(nodeCollection);
 
                     node.listView = new ListView(_.extend(
                         {useCollectionChange: false},
