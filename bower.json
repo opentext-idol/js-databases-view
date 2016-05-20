@@ -37,6 +37,6 @@
   },
   "devDependencies": {
     "jasmine-jquery": "2.1.0",
-    "hp-autonomy-js-testing-utils": "1.1.0"
+    "hp-autonomy-js-testing-utils": "2.1.0"
   }
 }
