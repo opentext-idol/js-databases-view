@@ -24,19 +24,19 @@
     "tests"
   ],
   "dependencies": {
-    "backbone": "~1.2.1",
-    "jquery": "~1.10.0",
-    "underscore": "~1.8.3",
-    "hp-autonomy-js-whatever": "~2.3.0"
+    "backbone": "1.2.3",
+    "jquery": "1.10.2",
+    "underscore": "1.8.3",
+    "hp-autonomy-js-whatever": "2.5.0"
   },
   "resolutions": {
-    "backbone": "~1.2.1",
-    "underscore": "~1.8.3",
-    "jquery": "~1.10.0",
-    "jasmine": ">=2"
+    "backbone": "1.2.3",
+    "underscore": "1.8.3",
+    "jquery": "1.10.2",
+    "jasmine": "2.4"
   },
   "devDependencies": {
-    "jasmine-jquery": "~2.1.0",
-    "hp-autonomy-js-testing-utils": "~1.1.0"
+    "jasmine-jquery": "2.1.0",
+    "hp-autonomy-js-testing-utils": "2.1.0"
   }
 }
