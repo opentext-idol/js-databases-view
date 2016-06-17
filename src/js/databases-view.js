@@ -23,7 +23,7 @@ define([
     function getTextFilter(filterModel) {
         return function(model) {
             var search = filterModel.get('text');
-            return !search || searchMatches(model.get('name'), search);
+            return !search || searchMatches(model.get('displayName') || model.get('name'), search);
         };
     }
 
