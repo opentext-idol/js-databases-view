@@ -23,7 +23,7 @@ define([
     function getTextFilter(filterModel) {
         return function(model) {
             var search = filterModel.get('text');
-            return !search || searchMatches(model.get('name'), search);
+            return !search || searchMatches(model.get('displayName') || model.get('name'), search);
         };
     }
 
@@ -281,18 +281,12 @@ define([
             // else if node has a filter, set up filtering collection and list view
             // else set up list view
             var buildHierarchy = _.bind(function(node, collection) {
-                this.filteredIndexesCollections = [];
-
                 if (node.children) {
                     _.each(node.children, function(child) {
                         buildHierarchy(child, collection);
                     });
                 } else {
-                    var nodeCollection = filteredIndexesCollection(node.filter, collection, this.filterModel);
-
-                    node.children = nodeCollection;
-
-                    this.filteredIndexesCollections.push(nodeCollection);
+                    node.children = filteredIndexesCollection(node.filter, collection, this.filterModel);
 
                     node.listView = new ListView(_.extend(
                         {useCollectionChange: false},
@@ -379,10 +373,19 @@ define([
                     this.updateCheckedOptions();
 
                     if (this.visibleIndexesCallback) {
-                        var models = _.chain(this.filteredIndexesCollections)
-                            .pluck('models')
-                            .flatten()
-                            .value();
+                        var getModels = function(node) {
+                            if(_.isArray(node.children)) {
+                                return _.chain(node.children)
+                                    .map(getModels)
+                                    .flatten()
+                                    .value();
+                            }
+                            else {
+                                return node.children.models;
+                            }
+                        };
+
+                        var models = getModels(this.hierarchy);
 
                         this.visibleIndexesCallback(models);
                     }

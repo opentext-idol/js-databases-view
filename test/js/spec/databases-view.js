@@ -767,7 +767,7 @@ define([
                 var databases = [
                     {id: 'DB1', name: 'onion beverages', domain: 'PUBLIC_INDEXES'},
                     {id: 'DB2', name: 'cloud interpretations', domain: 'PUBLIC_INDEXES'},
-                    {id: 'DB3', name: 'concrete', domain: 'PRIVATE_INDEXES'},
+                    {id: 'DB3', name: 'concrete', displayName: 'Aggregates', domain: 'PRIVATE_INDEXES'},
                     {id: 'DB4', name: 'anions', domain: 'PRIVATE_INDEXES'}
                 ];
 
@@ -776,10 +776,13 @@ define([
 
                 this.filterModel = new Backbone.Model();
 
+                this.visibleIndexesCallback = jasmine.createSpy('visibleIndexesCallback');
+
                 this.databasesView = new TestDatabaseView({
                     childCategories: childCategories,
                     databasesCollection: this.databasesCollection,
                     emptyMessage: EMPTY_MESSAGE,
+                    visibleIndexesCallback: this.visibleIndexesCallback,
                     filterModel: this.filterModel,
                     selectedDatabasesCollection: this.selectedDatabasesCollection,
                     topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME
@@ -798,6 +801,28 @@ define([
                 this.filterModel.set('text', 'ions');
                 expect(this.databasesView.$('.database-input')).toHaveLength(2);
             });
+
+            it('should filter databases by displayName where they exist', function() {
+                this.filterModel.set('text', 'Aggregates');
+                expect(this.databasesView.$('.database-input')).toHaveLength(1);
+            });
+
+            it('should not filter by name when a displayName is present', function() {
+                this.filterModel.set('text', 'concrete');
+                expect(this.databasesView.$('.database-input')).toHaveLength(0);
+            });
+
+            it('should call the visibleIndexesCallback with the correct databases', function() {
+                this.filterModel.set('text', 'ions');
+                expect(this.visibleIndexesCallback.calls.count()).toBe(1);
+
+                var models = this.visibleIndexesCallback.calls.argsFor(0)[0];
+                expect(models.length).toBe(2);
+
+                var names = _.invoke(models, 'get', 'name');
+                expect(names).toContain('cloud interpretations');
+                expect(names).toContain('anions');
+            })
         })
     });
 
