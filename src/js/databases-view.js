@@ -80,7 +80,7 @@ define([
                 child.collapse = !(childHasSelection || (!this.forceSelection && _.isEmpty(currentSelection)));
 
                 return child;
-            })
+            }, this)
             .value();
     };
 
@@ -258,7 +258,7 @@ define([
             }
 
             if (options.childCategories) {
-                var children = processCategories(options.childCategories, this.collection, this.currentSelection);
+                var children = processCategories.call(this, options.childCategories, this.collection, this.currentSelection);
 
                 this.hierarchy = {
                     name: 'all',
@@ -311,37 +311,7 @@ define([
                 }
             });
 
-            this.listenTo(this.collection, 'reset', function(collection) {
-                if (!_.isEmpty(this.currentSelection)) {
-                    var newItems = collection.toResourceIdentifiers();
-
-                    var newSelection = _.filter(this.currentSelection, function(selectedItem) {
-                        return _.findWhere(newItems, selectedItem);
-                    });
-
-                    if (!_.isEqual(newSelection, this.currentSelection)) {
-                        this.currentSelection = newSelection;
-                        this.updateSelectedDatabases();
-                    }
-
-                    this.updateCheckedOptions();
-                }
-                else {
-                    // empty selection is everything, which may now be different
-                    this.updateSelectedDatabases();
-                }
-            });
-
-            this.listenTo(this.selectedDatabasesCollection, 'update reset', function() {
-                // Empty current selection means all selected; if we still have everything selected then there is no work to do
-                if (!(_.isEmpty(this.currentSelection) && this.selectedDatabasesCollection.length === this.collection.length)) {
-                    this.currentSelection = this.selectedDatabasesCollection.toResourceIdentifiers();
-                    this.updateCheckedOptions();
-                }
-            });
-
-            // if the databases change, we need to recalculate category collapsing and visibility
-            this.listenTo(this.collection, 'reset update', function() {
+            this.listenTo(this.collection, 'reset update', function(collection) {
                 if (options.childCategories) {
                     var removeListViews = function (node) {
                         if (node.listView) {
@@ -357,14 +327,34 @@ define([
 
                     removeListViews(this.hierarchy);
 
-                    this.hierarchy.children = processCategories(options.childCategories, this.collection, this.currentSelection);
+                    this.hierarchy.children = processCategories.call(this, options.childCategories, this.collection, this.currentSelection);
 
                     buildHierarchy(this.hierarchy, this.collection);
+                }
+
+                if (!_.isEmpty(this.currentSelection)) {
+                    var newItems = collection.toResourceIdentifiers();
+
+                    var newSelection = _.filter(this.currentSelection, function(selectedItem) {
+                        return _.findWhere(newItems, selectedItem);
+                    });
+
+                    if (!_.isEqual(newSelection, this.currentSelection)) {
+                        this.currentSelection = newSelection;
+                    }
                 }
 
                 this.render();
 
                 this.updateSelectedDatabases();
+            });
+
+            this.listenTo(this.selectedDatabasesCollection, 'update reset', function() {
+                // Empty current selection means all selected; if we still have everything selected then there is no work to do
+                if (!(_.isEmpty(this.currentSelection) && this.selectedDatabasesCollection.length === this.collection.length)) {
+                    this.currentSelection = this.selectedDatabasesCollection.toResourceIdentifiers();
+                    this.updateCheckedOptions();
+                }
             });
 
             if (this.filterModel) {
