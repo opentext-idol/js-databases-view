@@ -111,6 +111,12 @@ define([
      * @return {boolean} True if the database is in the category; false otherwise
      */
     /**
+     * The databases collection may be empty when the view is created. This function specifies a selection to choose when databases are available
+     * @callback module:databases-view/js/databases-view.DatabasesView~DelayedSelection
+     * @param {module:databases-view/js/databases-collection.DatabasesCollection} collection The collection of databases
+     * @return {Array<ResourceIdentifier>} Array of resource identifiers representing the selection
+     */
+    /**
      * @typedef module:databases-view/js/databases-view.DatabasesView~Category
      * @property {module:databases-view/js/databases-view.DatabasesView~CategoryFilter} filter Filter describing the databases contained in the category
      * @property {string} name The name of the category
@@ -126,6 +132,7 @@ define([
      * @property {string} [emptyMessage=''] Message to display if there are no databases
      * @property {Array<module:databases-view/js/databases-view.DatabasesView~Category>} [childCategories] The categories the databases will be placed in. If undefined all the databases will be in a single category
      * @property {module:databases-view/js/databases-view.DatabasesListViewOptions} [listViewOptions] Options used to create the list views
+     * @property {module:databases-view/js/databases-view.DatabasesView~DelayedSelection} [delayedSelection] The databases collection may be empty when the view is created. This function specifies a selection to choose when databases are available
      */
     /**
      * @name module:databases-view/js/databases-view.DatabasesView
@@ -234,6 +241,7 @@ define([
             this.selectedDatabasesCollection = options.selectedDatabasesCollection;
             this.filterModel = options.filterModel;
             this.visibleIndexesCallback = options.visibleIndexesCallback;
+            this.delayedSelection = options.delayedSelection;
 
             this.forceSelection = options.forceSelection || false;
             this.emptyMessage = options.emptyMessage || '';
@@ -311,7 +319,23 @@ define([
                 }
             });
 
+            // if the databases change, we need to recalculate category collapsing and visibility
             this.listenTo(this.collection, 'reset update', function(collection) {
+                if (!_.isEmpty(this.currentSelection)) {
+                    var newItems = collection.toResourceIdentifiers();
+
+                    var newSelection = _.filter(this.currentSelection, function(selectedItem) {
+                        return _.findWhere(newItems, selectedItem);
+                    });
+
+                    if (!_.isEqual(newSelection, this.currentSelection)) {
+                        this.currentSelection = newSelection;
+                    }
+                }
+                else if (this.delayedSelection) {
+                    this.currentSelection = this.delayedSelection(collection);
+                }
+
                 if (options.childCategories) {
                     var removeListViews = function (node) {
                         if (node.listView) {
@@ -330,18 +354,6 @@ define([
                     this.hierarchy.children = processCategories.call(this, options.childCategories, this.collection, this.currentSelection);
 
                     buildHierarchy(this.hierarchy, this.collection);
-                }
-
-                if (!_.isEmpty(this.currentSelection)) {
-                    var newItems = collection.toResourceIdentifiers();
-
-                    var newSelection = _.filter(this.currentSelection, function(selectedItem) {
-                        return _.findWhere(newItems, selectedItem);
-                    });
-
-                    if (!_.isEqual(newSelection, this.currentSelection)) {
-                        this.currentSelection = newSelection;
-                    }
                 }
 
                 this.render();
