@@ -80,7 +80,7 @@ define([
                 child.collapse = !(childHasSelection || (!this.forceSelection && _.isEmpty(currentSelection)));
 
                 return child;
-            })
+            }, this)
             .value();
     };
 
@@ -111,6 +111,12 @@ define([
      * @return {boolean} True if the database is in the category; false otherwise
      */
     /**
+     * The databases collection may be empty when the view is created. This function specifies a selection to choose when databases are available
+     * @callback module:databases-view/js/databases-view.DatabasesView~DelayedSelection
+     * @param {module:databases-view/js/databases-collection.DatabasesCollection} collection The collection of databases
+     * @return {Array<ResourceIdentifier>} Array of resource identifiers representing the selection
+     */
+    /**
      * @typedef module:databases-view/js/databases-view.DatabasesView~Category
      * @property {module:databases-view/js/databases-view.DatabasesView~CategoryFilter} filter Filter describing the databases contained in the category
      * @property {string} name The name of the category
@@ -126,6 +132,7 @@ define([
      * @property {string} [emptyMessage=''] Message to display if there are no databases
      * @property {Array<module:databases-view/js/databases-view.DatabasesView~Category>} [childCategories] The categories the databases will be placed in. If undefined all the databases will be in a single category
      * @property {module:databases-view/js/databases-view.DatabasesListViewOptions} [listViewOptions] Options used to create the list views
+     * @property {module:databases-view/js/databases-view.DatabasesView~DelayedSelection} [delayedSelection] The databases collection may be empty when the view is created. This function specifies a selection to choose when databases are available
      */
     /**
      * @name module:databases-view/js/databases-view.DatabasesView
@@ -234,6 +241,7 @@ define([
             this.selectedDatabasesCollection = options.selectedDatabasesCollection;
             this.filterModel = options.filterModel;
             this.visibleIndexesCallback = options.visibleIndexesCallback;
+            this.delayedSelection = options.delayedSelection;
 
             this.forceSelection = options.forceSelection || false;
             this.emptyMessage = options.emptyMessage || '';
@@ -258,7 +266,7 @@ define([
             }
 
             if (options.childCategories) {
-                var children = processCategories(options.childCategories, this.collection, this.currentSelection);
+                var children = processCategories.call(this, options.childCategories, this.collection, this.currentSelection);
 
                 this.hierarchy = {
                     name: 'all',
@@ -311,7 +319,8 @@ define([
                 }
             });
 
-            this.listenTo(this.collection, 'reset', function(collection) {
+            // if the databases change, we need to recalculate category collapsing and visibility
+            this.listenTo(this.collection, 'reset update', function(collection) {
                 if (!_.isEmpty(this.currentSelection)) {
                     var newItems = collection.toResourceIdentifiers();
 
@@ -321,27 +330,12 @@ define([
 
                     if (!_.isEqual(newSelection, this.currentSelection)) {
                         this.currentSelection = newSelection;
-                        this.updateSelectedDatabases();
                     }
-
-                    this.updateCheckedOptions();
                 }
-                else {
-                    // empty selection is everything, which may now be different
-                    this.updateSelectedDatabases();
+                else if (this.delayedSelection) {
+                    this.currentSelection = this.delayedSelection(collection);
                 }
-            });
 
-            this.listenTo(this.selectedDatabasesCollection, 'update reset', function() {
-                // Empty current selection means all selected; if we still have everything selected then there is no work to do
-                if (!(_.isEmpty(this.currentSelection) && this.selectedDatabasesCollection.length === this.collection.length)) {
-                    this.currentSelection = this.selectedDatabasesCollection.toResourceIdentifiers();
-                    this.updateCheckedOptions();
-                }
-            });
-
-            // if the databases change, we need to recalculate category collapsing and visibility
-            this.listenTo(this.collection, 'reset update', function() {
                 if (options.childCategories) {
                     var removeListViews = function (node) {
                         if (node.listView) {
@@ -357,7 +351,7 @@ define([
 
                     removeListViews(this.hierarchy);
 
-                    this.hierarchy.children = processCategories(options.childCategories, this.collection, this.currentSelection);
+                    this.hierarchy.children = processCategories.call(this, options.childCategories, this.collection, this.currentSelection);
 
                     buildHierarchy(this.hierarchy, this.collection);
                 }
@@ -365,6 +359,14 @@ define([
                 this.render();
 
                 this.updateSelectedDatabases();
+            });
+
+            this.listenTo(this.selectedDatabasesCollection, 'update reset', function() {
+                // Empty current selection means all selected; if we still have everything selected then there is no work to do
+                if (!(_.isEmpty(this.currentSelection) && this.selectedDatabasesCollection.length === this.collection.length)) {
+                    this.currentSelection = this.selectedDatabasesCollection.toResourceIdentifiers();
+                    this.updateCheckedOptions();
+                }
             });
 
             if (this.filterModel) {
