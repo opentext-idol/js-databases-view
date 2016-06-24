@@ -279,6 +279,117 @@ define([
                     });
                 });
 
+                describe('without an initial selection but with a delayed selection', function() {
+                    beforeEach(function() {
+                        this.databases = [
+                            {id: 'DB1', name: 'DB1', domain: 'PUBLIC_INDEXES'},
+                            {id: 'DB2', name: 'DB2', domain: 'PUBLIC_INDEXES'},
+                            {id: 'DB3', name: 'DB3', domain: 'PRIVATE_INDEXES'},
+                            {id: 'DB4', name: 'DB4', domain: 'PRIVATE_INDEXES'}
+                        ];
+
+                        this.selectedDatabasesCollection = new DatabasesCollection([]);
+                        this.databasesCollection = new DatabasesCollection([]);
+
+                        this.databasesView = new TestDatabaseView({
+                            childCategories: childCategories,
+                            databasesCollection: this.databasesCollection,
+                            emptyMessage: EMPTY_MESSAGE,
+                            selectedDatabasesCollection: this.selectedDatabasesCollection,
+                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
+                            delayedSelection: function(collection) {
+                                var privateIndexes = collection.where({domain: 'PRIVATE_INDEXES'});
+
+                                return _.map(privateIndexes, function (indexModel) {
+                                    return indexModel.pick('domain', 'name');
+                                });
+                            }
+                        });
+
+                        this.databasesView.render();
+                    });
+
+                    it('should render no databases', function() {
+                        expect(this.databasesView.$('.database-input')).toHaveLength(0);
+                    });
+
+                    it('should start with no checkboxes checked', function() {
+                        expect(this.databasesView.$('.database-input:checked')).toHaveLength(0);
+                    });
+
+                    it('should start with all databases selected', function() {
+                        testSelection(this.selectedDatabasesCollection, []);
+                    });
+
+                    it('should not have selected the all checkbox', function() {
+                        expect(this.databasesView.$('[data-category-id="all"]')).not.toHaveProp('checked', true);
+                    });
+
+                    describe('after the databases load', function() {
+                        beforeEach(function() {
+                            this.databasesCollection.reset(this.databases);
+                        });
+
+                        it('should render the databases', function() {
+                            expect(this.databasesView.$('.database-input')).toHaveLength(4);
+                        });
+
+                        it('should check the boxes defined by the initial selection function', function() {
+                            expect(this.databasesView.$('.database-input:checked')).toHaveLength(2);
+                        });
+
+                        it('should select the correct databases', function() {
+                            testSelection(this.selectedDatabasesCollection, ['DB3', 'DB4']);
+                        });
+
+                        it('should not have selected the all checkbox', function() {
+                            expect(this.databasesView.$('[data-category-id="all"]')).not.toHaveProp('checked', true);
+                        });
+
+                        it('should collapse the public category as it has no selected databases', function() {
+                            var $data = this.databasesView.$('[data-category-id="public"]').parent().find('.child-categories');
+                            expect($data).toHaveClass('collapse');
+                            expect($data).not.toHaveClass('in');
+                        });
+
+                        describe('after selecting a database', function() {
+                            beforeEach(function() {
+                                this.databasesView.selectDatabase('DB1', 'PUBLIC_INDEXES', true);
+                            });
+
+                            it('should have three checkboxes checked', function() {
+                                expect(this.databasesView.$('.database-input:checked')).toHaveLength(3);
+                            });
+
+                            it('should have three databases selected', function() {
+                                testSelection(this.selectedDatabasesCollection, ['DB1', 'DB3', 'DB4']);
+                            });
+
+                            describe('and then selecting another database', function() {
+                                beforeEach(function() {
+                                    this.databasesView.selectDatabase('DB2', 'PUBLIC_INDEXES', true);
+                                });
+
+                                it('should have four checkboxes checked', function() {
+                                    expect(this.databasesView.$('.database-input:checked')).toHaveLength(4);
+                                });
+
+                                it('should have all databases selected', function() {
+                                    testSelection(this.selectedDatabasesCollection, ['DB1', 'DB2', 'DB3', 'DB4']);
+                                });
+
+                                it('should have selected the public checkbox', function() {
+                                    expect(this.databasesView.$('[data-category-id="public"]')).toHaveProp('checked', true);
+                                });
+
+                                it('should have selected the all checkbox', function() {
+                                    expect(this.databasesView.$('[data-category-id="all"]')).toHaveProp('checked', true);
+                                });
+                            });
+                        });
+                    });
+                });
+
                 describe('with an initial selection', function() {
                     beforeEach(function() {
                         this.selectedDatabasesCollection = new DatabasesCollection([
