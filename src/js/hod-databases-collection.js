@@ -4,16 +4,17 @@
  */
 
 /**
- * @module databases-view/js/databases-collection
+ * @module databases-view/js/hod-databases-collection
  */
 define([
     'backbone',
     'underscore',
     'js-whatever/js/escape-hod-identifier'
 ], function(Backbone, _, escapeHodIdentifier) {
+    "use strict";
 
     /**
-     * @name module:databases-view/js/databases-collection.DatabaseModel
+     * @name module:databases-view/js/hod-databases-collection.DatabaseModel
      * @desc Model representing a single HOD resource. Must have at least a domain and a name attribute.
      * @constructor
      * @extends Backbone.Model
@@ -30,10 +31,10 @@ define([
     });
 
     /**
-     * @name module:databases-view/js/databases-collection.DatabasesCollection
+     * @name module:databases-view/js/hod-databases-collection.DatabasesCollection
      * @desc Collection representing a set of HOD resources. Each model must have a domain and a name attribute.
      * @constructor
-     * @see {module:databases-view/js/databases-collection.DatabaseModel}
+     * @see {module:databases-view/js/hod-databases-collection.DatabaseModel}
      * @extends Backbone.Collection
      */
     return Backbone.Collection.extend(/** @lends module:databases-view/js/databases-collection.DatabasesCollection.prototype */{
@@ -41,7 +42,7 @@ define([
 
         modelId: function(attributes) {
             // HOD resources are the same when they have the same domain and name
-            return attributes.domain ? escapeHodIdentifier(attributes.domain) + ':' + escapeHodIdentifier(attributes.name) : attributes.name;
+            return escapeHodIdentifier(attributes.domain) + ':' + escapeHodIdentifier(attributes.name);
         },
 
         /**
@@ -50,6 +51,7 @@ define([
          * @function
          */
         toResourceIdentifiers: function() {
+            //noinspection JSUnresolvedFunction
             return this.invoke('toResourceIdentifier');
         }
     });

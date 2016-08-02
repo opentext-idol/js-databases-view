@@ -1,5 +1,5 @@
 define([
-    'databases-view/js/databases-collection'
+    'databases-view/js/hod-databases-collection'
 ], function(DatabasesCollection) {
 
     describe('Databases collection', function() {

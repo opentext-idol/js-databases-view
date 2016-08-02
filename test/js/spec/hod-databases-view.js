@@ -4,8 +4,8 @@
  */
 
 define([
-    'databases-view/js/databases-view',
-    'databases-view/js/databases-collection',
+    'databases-view/js/hod-databases-view',
+    'databases-view/js/hod-databases-collection',
     'backbone',
     'underscore',
     'jasmine-jquery'
@@ -61,7 +61,7 @@ define([
         });
     };
 
-    describe('Databases view', function() {
+    describe('HoD Databases view', function() {
         describe('when not forcing selections', function() {
             describe('without child categories', function() {
                 describe('without an initial selection', function() {
@@ -102,7 +102,7 @@ define([
 
                     describe('after selecting a database', function() {
                         beforeEach(function() {
-                            this.databasesView.selectDatabase('DB1', 'PUBLIC_INDEXES', true);
+                            this.databasesView.selectDatabase({name: 'DB1', domain: 'PUBLIC_INDEXES'}, true);
                         });
 
                         it('should have one checkbox checked', function() {
@@ -119,7 +119,7 @@ define([
 
                         describe('and then selecting another database', function() {
                             beforeEach(function() {
-                                this.databasesView.selectDatabase('DB2', 'PUBLIC_INDEXES', true);
+                                this.databasesView.selectDatabase({name: 'DB2', domain: 'PUBLIC_INDEXES'}, true);
                             });
 
                             it('should have two checkboxes checked', function() {
@@ -218,7 +218,7 @@ define([
 
                     describe('after selecting a database', function() {
                         beforeEach(function() {
-                            this.databasesView.selectDatabase('DB1', 'PUBLIC_INDEXES', true);
+                            this.databasesView.selectDatabase({name: 'DB1', domain: 'PUBLIC_INDEXES'}, true);
                         });
 
                         it('should have one checkbox checked', function() {
@@ -231,7 +231,7 @@ define([
 
                         describe('and then selecting another database', function() {
                             beforeEach(function() {
-                                this.databasesView.selectDatabase('DB2', 'PUBLIC_INDEXES', true);
+                                this.databasesView.selectDatabase({name: 'DB2', domain: 'PUBLIC_INDEXES'}, true);
                             });
 
                             it('should have two checkboxes checked', function() {
@@ -354,7 +354,7 @@ define([
 
                         describe('after selecting a database', function() {
                             beforeEach(function() {
-                                this.databasesView.selectDatabase('DB1', 'PUBLIC_INDEXES', true);
+                                this.databasesView.selectDatabase({name: 'DB1', domain: 'PUBLIC_INDEXES'}, true);
                             });
 
                             it('should have three checkboxes checked', function() {
@@ -367,7 +367,7 @@ define([
 
                             describe('and then selecting another database', function() {
                                 beforeEach(function() {
-                                    this.databasesView.selectDatabase('DB2', 'PUBLIC_INDEXES', true);
+                                    this.databasesView.selectDatabase({name: 'DB2', domain: 'PUBLIC_INDEXES'}, true);
                                 });
 
                                 it('should have four checkboxes checked', function() {
@@ -500,7 +500,7 @@ define([
 
                     describe('after deselecting a database', function() {
                         beforeEach(function() {
-                            this.databasesView.selectDatabase('DB1', 'PUBLIC_INDEXES', false);
+                            this.databasesView.selectDatabase({name: 'DB1', domain: 'PUBLIC_INDEXES'}, false);
                         });
 
                         it('should have one checkbox checked', function() {
@@ -626,7 +626,7 @@ define([
 
                     describe('after deselecting a database', function() {
                         beforeEach(function() {
-                            this.databasesView.selectDatabase('DB1', 'PUBLIC_INDEXES', false);
+                            this.databasesView.selectDatabase({name: 'DB1', domain: 'PUBLIC_INDEXES'}, false);
                         });
 
                         it('should have three checkboxes checked', function() {
@@ -643,7 +643,7 @@ define([
 
                         describe('and then deselecting another database', function() {
                             beforeEach(function() {
-                                this.databasesView.selectDatabase('DB2', 'PUBLIC_INDEXES', false);
+                                this.databasesView.selectDatabase({name: 'DB2', domain: 'PUBLIC_INDEXES'}, false);
                             });
 
                             it('should have two checkboxes checked', function() {
@@ -804,7 +804,7 @@ define([
 
                         describe('after selecting a database', function() {
                             beforeEach(function() {
-                                this.databasesView.selectDatabase('DB1', 'PUBLIC_INDEXES', true);
+                                this.databasesView.selectDatabase({name: 'DB1', domain: 'PUBLIC_INDEXES'}, true);
                             });
 
                             it('should have one checkbox checked', function() {
@@ -817,7 +817,7 @@ define([
 
                             describe('and then selecting another database', function() {
                                 beforeEach(function() {
-                                    this.databasesView.selectDatabase('DB2', 'PUBLIC_INDEXES', true);
+                                    this.databasesView.selectDatabase({name: 'DB2', domain: 'PUBLIC_INDEXES'}, true);
                                 });
 
                                 it('should have two checkboxes checked', function() {
