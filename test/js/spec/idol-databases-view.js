@@ -4,12 +4,13 @@
  */
 
 define([
-    'databases-view/js/idol-databases-view',
+    'databases-view/js/databases-view',
     'databases-view/js/idol-databases-collection',
+    'databases-view/js/idol-database-helper',
     'backbone',
     'underscore',
     'jasmine-jquery'
-], function (DatabasesView, DatabasesCollection, Backbone, _) {
+], function (DatabasesView, DatabasesCollection, databaseHelper, Backbone, _) {
 
     var EMPTY_MESSAGE = 'There are no databases';
     var TOP_LEVEL_DISPLAY_NAME = 'All the things';
@@ -61,7 +62,8 @@ define([
                         databasesCollection: this.databasesCollection,
                         emptyMessage: EMPTY_MESSAGE,
                         selectedDatabasesCollection: this.selectedDatabasesCollection,
-                        topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME
+                        topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
+                        databaseHelper: databaseHelper
                     });
 
                     this.databasesView.render();
@@ -135,7 +137,8 @@ define([
                         databasesCollection: this.databasesCollection,
                         emptyMessage: EMPTY_MESSAGE,
                         selectedDatabasesCollection: this.selectedDatabasesCollection,
-                        topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME
+                        topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
+                        databaseHelper: databaseHelper
                     });
 
                     this.databasesView.render();
@@ -175,7 +178,8 @@ define([
                         emptyMessage: EMPTY_MESSAGE,
                         forceSelection: true,
                         selectedDatabasesCollection: this.selectedDatabasesCollection,
-                        topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME
+                        topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
+                        databaseHelper: databaseHelper
                     });
 
                     this.databasesView.render();
@@ -246,7 +250,8 @@ define([
                         emptyMessage: EMPTY_MESSAGE,
                         forceSelection: true,
                         selectedDatabasesCollection: this.selectedDatabasesCollection,
-                        topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME
+                        topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
+                        databaseHelper: databaseHelper
                     });
 
                     this.databasesView.render();
@@ -292,7 +297,8 @@ define([
                             databasesCollection: this.databasesCollection,
                             emptyMessage: EMPTY_MESSAGE,
                             selectedDatabasesCollection: this.selectedDatabasesCollection,
-                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME
+                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
+                            databaseHelper: databaseHelper
                         });
 
                         this.databasesView.render();
@@ -373,7 +379,8 @@ define([
                     visibleIndexesCallback: this.visibleIndexesCallback,
                     filterModel: this.filterModel,
                     selectedDatabasesCollection: this.selectedDatabasesCollection,
-                    topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME
+                    topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
+                    databaseHelper: databaseHelper
                 });
 
                 this.databasesView.render();

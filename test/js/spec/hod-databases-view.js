@@ -4,12 +4,13 @@
  */
 
 define([
-    'databases-view/js/hod-databases-view',
+    'databases-view/js/databases-view',
     'databases-view/js/hod-databases-collection',
+    'databases-view/js/hod-database-helper',
     'backbone',
     'underscore',
     'jasmine-jquery'
-], function(DatabasesView, DatabasesCollection, Backbone, _) {
+], function(DatabasesView, DatabasesCollection, databaseHelper, Backbone, _) {
 
     var EMPTY_MESSAGE = 'There are no databases';
     var TOP_LEVEL_DISPLAY_NAME = 'All the things';
@@ -78,7 +79,8 @@ define([
                             databasesCollection: this.databasesCollection,
                             emptyMessage: EMPTY_MESSAGE,
                             selectedDatabasesCollection: this.selectedDatabasesCollection,
-                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME
+                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
+                            databaseHelper: databaseHelper
                         });
 
                         this.databasesView.render();
@@ -152,7 +154,8 @@ define([
                             databasesCollection: this.databasesCollection,
                             emptyMessage: EMPTY_MESSAGE,
                             selectedDatabasesCollection: this.selectedDatabasesCollection,
-                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME
+                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
+                            databaseHelper: databaseHelper
                         });
 
                         this.databasesView.render();
@@ -194,7 +197,8 @@ define([
                             databasesCollection: this.databasesCollection,
                             emptyMessage: EMPTY_MESSAGE,
                             selectedDatabasesCollection: this.selectedDatabasesCollection,
-                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME
+                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
+                            databaseHelper: databaseHelper
                         });
 
                         this.databasesView.render();
@@ -297,6 +301,7 @@ define([
                             emptyMessage: EMPTY_MESSAGE,
                             selectedDatabasesCollection: this.selectedDatabasesCollection,
                             topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
+                            databaseHelper: databaseHelper,
                             delayedSelection: function(collection) {
                                 var privateIndexes = collection.where({domain: 'PRIVATE_INDEXES'});
 
@@ -409,7 +414,8 @@ define([
                             databasesCollection: this.databasesCollection,
                             emptyMessage: EMPTY_MESSAGE,
                             selectedDatabasesCollection: this.selectedDatabasesCollection,
-                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME
+                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
+                            databaseHelper: databaseHelper
                         });
 
                         this.databasesView.render();
@@ -442,7 +448,8 @@ define([
                             databasesCollection: this.databasesCollection,
                             emptyMessage: EMPTY_MESSAGE,
                             selectedDatabasesCollection: this.selectedDatabasesCollection,
-                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME
+                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
+                            databaseHelper: databaseHelper
                         });
 
                         this.databasesView.render();
@@ -472,7 +479,8 @@ define([
                             emptyMessage: EMPTY_MESSAGE,
                             forceSelection: true,
                             selectedDatabasesCollection: this.selectedDatabasesCollection,
-                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME
+                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
+                            databaseHelper: databaseHelper
                         });
 
                         this.databasesView.render();
@@ -543,7 +551,8 @@ define([
                             emptyMessage: EMPTY_MESSAGE,
                             forceSelection: true,
                             selectedDatabasesCollection: this.selectedDatabasesCollection,
-                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME
+                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
+                            databaseHelper: databaseHelper
                         });
 
                         this.databasesView.render();
@@ -590,7 +599,8 @@ define([
                             emptyMessage: EMPTY_MESSAGE,
                             forceSelection: true,
                             selectedDatabasesCollection: this.selectedDatabasesCollection,
-                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME
+                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
+                            databaseHelper: databaseHelper
                         });
 
                         this.databasesView.render();
@@ -711,7 +721,8 @@ define([
                             emptyMessage: EMPTY_MESSAGE,
                             forceSelection: true,
                             selectedDatabasesCollection: this.selectedDatabasesCollection,
-                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME
+                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
+                            databaseHelper: databaseHelper
                         });
 
                         this.databasesView.render();
@@ -745,7 +756,8 @@ define([
                             emptyMessage: EMPTY_MESSAGE,
                             forceSelection: true,
                             selectedDatabasesCollection: this.selectedDatabasesCollection,
-                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME
+                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
+                            databaseHelper: databaseHelper
                         });
 
                         this.databasesView.render();
@@ -778,7 +790,8 @@ define([
                                 databasesCollection: this.databasesCollection,
                                 emptyMessage: EMPTY_MESSAGE,
                                 selectedDatabasesCollection: this.selectedDatabasesCollection,
-                                topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME
+                                topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
+                                databaseHelper: databaseHelper
                             });
 
                             this.databasesView.render();
@@ -896,7 +909,8 @@ define([
                     visibleIndexesCallback: this.visibleIndexesCallback,
                     filterModel: this.filterModel,
                     selectedDatabasesCollection: this.selectedDatabasesCollection,
-                    topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME
+                    topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
+                    databaseHelper: databaseHelper
                 });
 
                 this.databasesView.render();

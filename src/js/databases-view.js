@@ -14,6 +14,7 @@ define([
     'js-whatever/js/filtering-collection'
 ], function(Backbone, $, _, ListView, FilteringCollection) //noinspection JSClosureCompilerSyntax
 {
+    "use strict";
 
     function searchMatches(text, search) {
         return text.toLowerCase().indexOf(search.toLowerCase()) > -1;
@@ -229,20 +230,13 @@ define([
          */
         indeterminate: $.noop,
 
-        // The following will be overridden
-        getCurrentSelection: null,
-        getSelectedIndexData: null,
-        getSelectedIndexDataFromModel: null,
-        findInCurrentSelectionArguments: null,
-        getDatabaseIdentifier: null,
-        selectedItemsEquals: null,
-
         initialize: function(options) {
             this.collection = options.databasesCollection;
             this.selectedDatabasesCollection = options.selectedDatabasesCollection;
             this.filterModel = options.filterModel;
             this.visibleIndexesCallback = options.visibleIndexesCallback;
             this.delayedSelection = options.delayedSelection;
+            this.databaseHelper = options.databaseHelper;
 
             this.forceSelection = options.forceSelection || false;
             this.emptyMessage = options.emptyMessage || '';
@@ -448,6 +442,35 @@ define([
             return this;
         },
 
+        getCurrentSelection: function (collection) {
+            return collection.map(function (model) {
+                return model.pick(this.databaseHelper.getDatabaseAttributes());
+            }.bind(this));
+        },
+
+        getSelectedIndexData: function (item) {
+            return _.pick(item, this.databaseHelper.getDatabaseAttributes());
+        },
+
+        getSelectedIndexDataFromModel: function (model) {
+            var attributes = this.databaseHelper.getDatabaseAttributes();
+            return model.pick(attributes);
+        },
+
+        findInCurrentSelectionArguments: function ($checkbox) {
+            var args = {};
+            this.databaseHelper.getDatabaseAttributes().forEach(function (arg) {
+                args[arg] = $checkbox.attr('data-' + arg)
+            });
+            return args;
+        },
+
+        selectedItemsEquals: function (item1, item2) {
+            return this.databaseHelper.getDatabaseAttributes().every(function (attribute) {
+                return item1[attribute] === item2[attribute];
+            });
+        },
+
         /**
          * Returns any parameters required for use in the template. This allows custom templates to take custom parameters
          * @returns {object} The parameters
@@ -463,12 +486,9 @@ define([
          */
         selectDatabase: function(data, checked) {
             if (checked) {
-                this.currentSelection.push(data);
+                this.currentSelection.push(this.getSelectedIndexDataFromModel(this.collection.find(data)));
 
-                this.currentSelection = _.uniq(this.currentSelection, function (item) {
-                    // uniq uses reference equality on the transform
-                    return this.getDatabaseIdentifier(item);
-                }.bind(this));
+                this.currentSelection = _.uniq(this.currentSelection, this.databaseHelper.getDatabaseIdentifier);
             } else {
                 this.currentSelection = _.reject(this.currentSelection, function (selectedItem) {
                     return this.selectedItemsEquals(data, selectedItem);
@@ -506,18 +526,14 @@ define([
                         .value();
                 }
                 else {
-                    return node.children.map(function(child) {
-                        return this.getSelectedIndexDataFromModel(child);
-                    }.bind(this));
+                    return node.children.map(this.getSelectedIndexDataFromModel, this);
                 }
             }.bind(this);
 
             var databases = findDatabases(findNode(this.hierarchy, category));
 
             if (checked) {
-                this.currentSelection = _.chain([this.currentSelection, databases]).flatten().uniq(function (item) {
-                    return this.getDatabaseIdentifier(item);
-                }.bind(this)).value();
+                this.currentSelection = _.chain([this.currentSelection, databases]).flatten().uniq(this.databaseHelper.getDatabaseIdentifier).value();
             } else {
                 this.currentSelection = _.reject(this.currentSelection, function (selectedItem) {
                     return _.findWhere(databases, this.getSelectedIndexData(selectedItem));
@@ -588,9 +604,7 @@ define([
             }
             else {
                 // the indexes are the ones in the collection for this category
-                childIndexes = node.children.map(function(child) {
-                    return this.getSelectedIndexDataFromModel(child);
-                }.bind(this));
+                childIndexes = node.children.map(this.getSelectedIndexDataFromModel, this);
             }
 
             // checkedState is an array containing true if there are checked boxes, and false if there are unchecked boxes

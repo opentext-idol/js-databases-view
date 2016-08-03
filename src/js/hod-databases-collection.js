@@ -14,6 +14,11 @@ define([
     "use strict";
 
     /**
+     * @typedef ResourceIdentifier
+     * @property {string} name The name of the resource
+     * @property {string} domain The domain of the resource
+     */
+    /**
      * @name module:databases-view/js/hod-databases-collection.DatabaseModel
      * @desc Model representing a single HOD resource. Must have at least a domain and a name attribute.
      * @constructor
