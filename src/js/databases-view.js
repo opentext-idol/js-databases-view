@@ -11,10 +11,10 @@ define([
     'jquery',
     'underscore',
     'js-whatever/js/list-view',
-    'js-whatever/js/filtering-collection',
-    'js-whatever/js/escape-hod-identifier'
-], function(Backbone, $, _, ListView, FilteringCollection, escapeHodIdentifier) //noinspection JSClosureCompilerSyntax
+    'js-whatever/js/filtering-collection'
+], function(Backbone, $, _, ListView, FilteringCollection) //noinspection JSClosureCompilerSyntax
 {
+    "use strict";
 
     function searchMatches(text, search) {
         return text.toLowerCase().indexOf(search.toLowerCase()) > -1;
@@ -100,11 +100,6 @@ define([
      * @property {module:databases-view/js/databases-view.DatabasesListItemViewOptions} itemOptions The options to use for the list items
      */
     /**
-     * @typedef ResourceIdentifier
-     * @property {string} name The name of the resource
-     * @property {string} domain The domain of the resource
-     */
-    /**
      * Function that describes the databases that a category contains
      * @callback module:databases-view/js/databases-view.DatabasesView~CategoryFilter
      * @param {Backbone.Model} model The database model
@@ -164,8 +159,7 @@ define([
 
         /**
          * @desc Template for an individual database. The element which will respond to user interaction must have
-         * class database-input. The name of the database must be in a data-name attribute. The name of the domain must
-         * be in a data-domain attribute
+         * class database-input.
          * @abstract
          * @method
          */
@@ -242,6 +236,7 @@ define([
             this.filterModel = options.filterModel;
             this.visibleIndexesCallback = options.visibleIndexesCallback;
             this.delayedSelection = options.delayedSelection;
+            this.databaseHelper = options.databaseHelper;
 
             this.forceSelection = options.forceSelection || false;
             this.emptyMessage = options.emptyMessage || '';
@@ -262,7 +257,7 @@ define([
             if (!this.forceSelection && this.selectedDatabasesCollection.length === this.collection.length) {
                 this.currentSelection = [];
             } else {
-                this.currentSelection = this.selectedDatabasesCollection.toResourceIdentifiers();
+                this.currentSelection = this.getCurrentSelection(this.selectedDatabasesCollection);
             }
 
             if (options.childCategories) {
@@ -310,7 +305,7 @@ define([
             this.listenTo(this.collection, 'add remove reset', this.updateEmptyMessage);
 
             this.listenTo(this.collection, 'remove', function(model) {
-                var selectedIndex = _.findWhere(this.currentSelection, model.pick('domain', 'name'));
+                var selectedIndex = _.findWhere(this.currentSelection, this.getSelectedIndexDataFromModel(model));
 
                 if (selectedIndex) {
                     this.currentSelection = _.without(this.currentSelection, selectedIndex);
@@ -322,7 +317,7 @@ define([
             // if the databases change, we need to recalculate category collapsing and visibility
             this.listenTo(this.collection, 'reset update', function(collection) {
                 if (!_.isEmpty(this.currentSelection)) {
-                    var newItems = collection.toResourceIdentifiers();
+                    var newItems = this.getCurrentSelection(collection);
 
                     var newSelection = _.filter(this.currentSelection, function(selectedItem) {
                         return _.findWhere(newItems, selectedItem);
@@ -364,7 +359,7 @@ define([
             this.listenTo(this.selectedDatabasesCollection, 'update reset', function() {
                 // Empty current selection means all selected; if we still have everything selected then there is no work to do
                 if (!(_.isEmpty(this.currentSelection) && this.selectedDatabasesCollection.length === this.collection.length)) {
-                    this.currentSelection = this.selectedDatabasesCollection.toResourceIdentifiers();
+                    this.currentSelection = this.getCurrentSelection(this.selectedDatabasesCollection);
                     this.updateCheckedOptions();
                 }
             });
@@ -447,6 +442,35 @@ define([
             return this;
         },
 
+        getCurrentSelection: function (collection) {
+            return collection.map(function (model) {
+                return model.pick(this.databaseHelper.getDatabaseAttributes());
+            }.bind(this));
+        },
+
+        getSelectedIndexData: function (item) {
+            return _.pick(item, this.databaseHelper.getDatabaseAttributes());
+        },
+
+        getSelectedIndexDataFromModel: function (model) {
+            var attributes = this.databaseHelper.getDatabaseAttributes();
+            return model.pick(attributes);
+        },
+
+        findInCurrentSelectionArguments: function ($checkbox) {
+            var args = {};
+            this.databaseHelper.getDatabaseAttributes().forEach(function (arg) {
+                args[arg] = $checkbox.attr('data-' + arg)
+            });
+            return args;
+        },
+
+        selectedItemsEquals: function (item1, item2) {
+            return this.databaseHelper.getDatabaseAttributes().every(function (attribute) {
+                return item1[attribute] === item2[attribute];
+            });
+        },
+
         /**
          * Returns any parameters required for use in the template. This allows custom templates to take custom parameters
          * @returns {object} The parameters
@@ -456,26 +480,19 @@ define([
         },
 
         /**
-         * @desc Selects the database with the given name and domain
-         * @param {string} database The name of the database
-         * @param {string} domain The domain of the database
+         * @desc Selects the database with the given id
+         * @param {object} data The identifying properties of the database
          * @param {boolean} checked The new state of the database
          */
-        selectDatabase: function(database, domain, checked) {
+        selectDatabase: function(data, checked) {
             if (checked) {
-                this.currentSelection.push({
-                    domain: domain,
-                    name: database
-                });
+                this.currentSelection.push(this.getSelectedIndexDataFromModel(this.collection.find(data)));
 
-                this.currentSelection = _.uniq(this.currentSelection, function (item) {
-                    // uniq uses reference equality on the transform
-                    return item.domain ? escapeHodIdentifier(item.domain) + ':' + escapeHodIdentifier(item.name) : item.name;
-                });
+                this.currentSelection = _.uniq(this.currentSelection, this.databaseHelper.getDatabaseIdentifier);
             } else {
                 this.currentSelection = _.reject(this.currentSelection, function (selectedItem) {
-                    return selectedItem.name === database && (selectedItem.domain === domain || !selectedItem.domain && !domain);
-                });
+                    return this.selectedItemsEquals(data, selectedItem);
+                }.bind(this));
             }
 
             this.updateCheckedOptions();
@@ -509,22 +526,18 @@ define([
                         .value();
                 }
                 else {
-                    return node.children.map(function(child) {
-                        return child.pick('domain', 'name');
-                    });
+                    return node.children.map(this.getSelectedIndexDataFromModel, this);
                 }
-            };
+            }.bind(this);
 
             var databases = findDatabases(findNode(this.hierarchy, category));
 
             if (checked) {
-                this.currentSelection = _.chain([this.currentSelection, databases]).flatten().uniq(function (item) {
-                    return item.domain ? escapeHodIdentifier(item.domain) + ':' + escapeHodIdentifier(item.name) : item.name;
-                }).value();
+                this.currentSelection = _.chain([this.currentSelection, databases]).flatten().uniq(this.databaseHelper.getDatabaseIdentifier).value();
             } else {
                 this.currentSelection = _.reject(this.currentSelection, function (selectedItem) {
-                    return _.findWhere(databases, selectedItem.domain ? selectedItem : {name: selectedItem.name});
-                });
+                    return _.findWhere(databases, this.getSelectedIndexData(selectedItem));
+                }.bind(this));
             }
 
             this.updateCheckedOptions();
@@ -535,7 +548,7 @@ define([
          * @desc Updates the selected databases collection with the state of the UI
          */
         updateSelectedDatabases: function() {
-            this.selectedDatabasesCollection.set(_.isEmpty(this.currentSelection) ? this.collection.toResourceIdentifiers() : this.currentSelection);
+            this.selectedDatabasesCollection.set(_.isEmpty(this.currentSelection) ? this.getCurrentSelection(this.collection) : this.currentSelection);
         },
 
         /**
@@ -556,13 +569,7 @@ define([
                 this.enable($checkbox);
                 this.determinate($checkbox);
 
-                var findArguments = {name: $checkbox.attr('data-name')};
-                var domain = $checkbox.attr('data-domain');
-
-                if (domain) {
-                    findArguments.domain = domain;
-                }
-
+                var findArguments = this.findInCurrentSelectionArguments($checkbox);
                 if (_.findWhere(this.currentSelection, findArguments)) {
                     this.check($checkbox);
 
@@ -597,9 +604,7 @@ define([
             }
             else {
                 // the indexes are the ones in the collection for this category
-                childIndexes = node.children.map(function(child) {
-                    return child.pick('domain', 'name');
-                });
+                childIndexes = node.children.map(this.getSelectedIndexDataFromModel, this);
             }
 
             // checkedState is an array containing true if there are checked boxes, and false if there are unchecked boxes
