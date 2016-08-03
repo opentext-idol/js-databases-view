@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>HP Autonomy Databases View Classes</title>
+	<title>HP Autonomy Databases View Source: idol-databases-collection.js</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -76,101 +76,47 @@
 	<div class="row-fluid">
 
 		
-		<div class="span8">
-			
+			<div class="span12">
+				
 				<div id="main">
 					
 
 
-	<h1 class="page-title">Classes</h1>
+		<h1 class="page-title">Source: idol-databases-collection.js</h1>
+    
 <section>
+	<article>
+		<pre
+			class="sunlight-highlight-javascript linenums">/*
+ * Copyright 2015 Hewlett-Packard Development Company, L.P.
+ * Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License.
+ */
 
-<header>
-    <h2>
+/**
+ * @module databases-view/js/idol-databases-collection
+ */
+define([
+    'backbone'
+], function(Backbone) {
+    "use strict";
     
-    </h2>
-    
-</header>
+    /**
+     * @name module:databases-view/js/idol-databases-collection.DatabasesCollection
+     * @desc Collection representing a set of Idol databases. Each model must have a name attribute.
+     * @constructor
+     * @extends Backbone.Collection
+     */
+    return Backbone.Collection.extend(/** @lends module:databases-view/js/idol-databases-collection.DatabasesCollection.prototype */{
+        modelId: function(attributes) {
+            return attributes.name;
+        }
+    });
 
-<article>
-    <div class="container-overview">
-    
-
-    
-        
-
-        
-<dl class="details">
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Classes</h3>
-
-        <dl>
-            <dt><a href="databases-view.DatabasesView.html">DatabasesView</a></dt>
-            <dd></dd>
-        
-            <dt><a href="hod-databases-collection.DatabaseModel.html">DatabaseModel</a></dt>
-            <dd></dd>
-        
-            <dt><a href="hod-databases-collection.DatabasesCollection.html">DatabasesCollection</a></dt>
-            <dd></dd>
-        
-            <dt><a href="idol-databases-collection.DatabasesCollection.html">DatabasesCollection</a></dt>
-            <dd></dd>
-        </dl>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
+});
+</pre>
+	</article>
 </section>
+
 
 
 
@@ -194,10 +140,6 @@
 				</footer>
 			</div>
 
-			
-			<div class="span3">
-				<div id="toc"></div>
-			</div>
 			
 			<br clear="both">
 		</div>
