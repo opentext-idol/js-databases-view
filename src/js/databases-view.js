@@ -16,6 +16,8 @@ define([
 {
     "use strict";
 
+    var CURRENT_SELECTION = 'currentSelection';
+
     function searchMatches(text, search) {
         return text.toLowerCase().indexOf(search.toLowerCase()) > -1;
     }
@@ -483,28 +485,37 @@ define([
          * @desc Selects the database with the given id
          * @param {object} data The identifying properties of the database
          * @param {boolean} checked The new state of the database
+         * @param {string} [selection] The name of the selection array to update. Defaults to 'currentSelection'
          */
-        selectDatabase: function(data, checked) {
-            if (checked) {
-                this.currentSelection.push(this.getSelectedIndexDataFromModel(this.collection.find(data)));
+        selectDatabase: function(data, checked, selection) {
+            selection = selection || CURRENT_SELECTION;
 
-                this.currentSelection = _.uniq(this.currentSelection, this.databaseHelper.getDatabaseIdentifier);
+            if (checked) {
+                this[selection].push(this.getSelectedIndexDataFromModel(this.collection.find(data)));
+
+                this[selection] = _.uniq(this[selection], this.databaseHelper.getDatabaseIdentifier);
             } else {
-                this.currentSelection = _.reject(this.currentSelection, function (selectedItem) {
+                this[selection] = _.reject(this[selection], function (selectedItem) {
                     return this.selectedItemsEquals(data, selectedItem);
                 }.bind(this));
             }
 
-            this.updateCheckedOptions();
-            this.updateSelectedDatabases();
+            this.updateCheckedOptions(this[selection]);
+
+            if (selection === CURRENT_SELECTION) {
+                this.updateSelectedDatabases();
+            }
         },
 
         /**
          * @desc Selects the category with the given name
          * @param {string} category
          * @param {boolean} checked The new state of the category
+         * @param {string} [selection] The name of theselection array to update. Defaults to 'currentSelection'
          */
-        selectCategory: function(category, checked) {
+        selectCategory: function(category, checked, selection) {
+            selection = selection || CURRENT_SELECTION;
+
             var findNode = function(node, name) {
                 if (node.name === name) {
                     return node;
@@ -533,15 +544,18 @@ define([
             var databases = findDatabases(findNode(this.hierarchy, category));
 
             if (checked) {
-                this.currentSelection = _.chain([this.currentSelection, databases]).flatten().uniq(this.databaseHelper.getDatabaseIdentifier).value();
+                this[selection] = _.chain([this[selection], databases]).flatten().uniq(this.databaseHelper.getDatabaseIdentifier).value();
             } else {
-                this.currentSelection = _.reject(this.currentSelection, function (selectedItem) {
+                this[selection] = _.reject(this[selection], function (selectedItem) {
                     return _.findWhere(databases, this.getSelectedIndexData(selectedItem));
                 }.bind(this));
             }
 
-            this.updateCheckedOptions();
-            this.updateSelectedDatabases();
+            this.updateCheckedOptions(this[selection]);
+
+            if (selection === CURRENT_SELECTION) {
+                this.updateSelectedDatabases(this[selection]);
+            }
         },
 
         /**
@@ -553,9 +567,12 @@ define([
 
         /**
          * @desc Updates the view to match the current internal state. There should be no need to call this method
+         * @param {Array<String>} [selection] The selection that describes the checked options. Defaults to this.currentSelection
          * @private
          */
-        updateCheckedOptions: function() {
+        updateCheckedOptions: function(selection) {
+            selection = selection || this.currentSelection;
+
             var $databaseInputs = this.$('.database-input');
 
             this.uncheck(this.$categoryCheckboxes);
@@ -570,25 +587,28 @@ define([
                 this.determinate($checkbox);
 
                 var findArguments = this.findInCurrentSelectionArguments($checkbox);
-                if (_.findWhere(this.currentSelection, findArguments)) {
+                if (_.findWhere(selection, findArguments)) {
                     this.check($checkbox);
 
-                    if (this.forceSelection && this.currentSelection.length === 1) {
+                    if (this.forceSelection && selection.length === 1) {
                         this.disable($checkbox);
                     }
                 }
             }, this);
 
-            this.updateCategoryCheckbox(this.hierarchy);
+            this.updateCategoryCheckbox(this.hierarchy, selection);
         },
 
         /**
          * Updates a category checkbox to match the current internal state. There should be no need to call this method
          * @param {module:databases-view/js/databases-view.DatabasesView~Category} node The category to update
+         * @param {Array<String>} [selection] Defaults to this.currentSelection
          * @returns {Array<ResourceIdentifier>} The resource identifier in the category and its descendants
          * @private
          */
-        updateCategoryCheckbox: function(node) {
+        updateCategoryCheckbox: function(node, selection) {
+            selection = selection || this.currentSelection;
+
             var $categoryCheckbox = this.$('[data-category-id="' + node.name + '"]');
             var childIndexes;
 
@@ -610,7 +630,7 @@ define([
             // checkedState is an array containing true if there are checked boxes, and false if there are unchecked boxes
             var checkedState = _.chain(childIndexes)
                 .map(function(childIndex) {
-                    return Boolean(_.findWhere(this.currentSelection, childIndex));
+                    return Boolean(_.findWhere(selection, childIndex));
                 }, this)
                 .uniq()
                 .value();
@@ -627,7 +647,7 @@ define([
 
                 // if this category's children comprise the entire selection, it should be disabled
                 // otherwise clicking it would leave an empty database selection
-                if (this.forceSelection && this.currentSelection.length === childIndexes.length) {
+                if (this.forceSelection && selection.length === childIndexes.length) {
                     this.disable($categoryCheckbox);
                 }
             }
