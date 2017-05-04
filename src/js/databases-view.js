@@ -86,8 +86,8 @@ define([
                     .value();
 
                 // if the category has a selected database, don't collapse it
-                // if we're not forcing selection and the selection is empty (i.e. everything is implicitly selected), don't collapse it
-                child.collapse = !(childHasSelection || (!this.forceSelection && _.isEmpty(currentSelection)));
+                // if the selection is empty (i.e. everything is implicitly selected), don't collapse it
+                child.collapse = !(childHasSelection || _.isEmpty(currentSelection));
 
                 return child;
             }, this)
@@ -133,7 +133,6 @@ define([
      * @property {module:databases-view/js/databases-collection.DatabasesCollection} databasesCollection The resources that the view will display
      * @property {module:databases-view/js/databases-collection.DatabasesCollection} selectedDatabasesCollection The currently selected resources
      * @property {string} topLevelDisplayName The display name of the top level category
-     * @property {boolean} [forceSelection=false] True if at least one item must always be selected; false otherwise
      * @property {string} [emptyMessage=''] Message to display if there are no databases
      * @property {Array<module:databases-view/js/databases-view.DatabasesView~Category>} [childCategories] The categories the databases will be placed in. If undefined all the databases will be in a single category
      * @property {module:databases-view/js/databases-view.DatabasesListViewOptions} [listViewOptions] Options used to create the list views
@@ -246,8 +245,8 @@ define([
             this.visibleIndexesCallback = options.visibleIndexesCallback;
             this.delayedSelection = options.delayedSelection;
             this.databaseHelper = options.databaseHelper;
+            this.childCategories = options.childCategories;
 
-            this.forceSelection = options.forceSelection || false;
             this.emptyMessage = options.emptyMessage || '';
 
             this.listViewOptions = options.listViewOptions || {};
@@ -263,7 +262,7 @@ define([
                 tagName: 'ul'
             });
 
-            if(!this.forceSelection && this.selectedDatabasesCollection.length === this.collection.length) {
+            if(this.selectedDatabasesCollection.length === this.collection.length) {
                 this.currentSelection = [];
             } else {
                 this.currentSelection = this.getCurrentSelection(this.selectedDatabasesCollection);
@@ -274,10 +273,10 @@ define([
                     displayName: options.topLevelDisplayName,
                     className: 'list-unstyled'
                 },
-                options.childCategories
+                this.childCategories
                     ? {
                         collapse: false,
-                        children: processCategories.call(this, options.childCategories, this.collection, this.currentSelection)
+                        children: processCategories.call(this, this.childCategories, this.collection, this.currentSelection)
                     }
                     : {});
 
@@ -320,14 +319,14 @@ define([
             });
 
             // if the databases change, we need to recalculate category collapsing and visibility
-            this.listenTo(this.collection, 'reset update', function(collection) {
-                if(collection.isEmpty()) {
+            this.listenTo(this.collection, 'reset update', function() {
+                if(this.collection.isEmpty()) {
                     this.viewModel.set('state', STATES.EMPTY);
                 } else {
                     this.viewModel.set('state', STATES.OK);
 
                     if(!_.isEmpty(this.currentSelection)) {
-                        var newItems = this.getCurrentSelection(collection);
+                        var newItems = this.getCurrentSelection(this.collection);
 
                         var newSelection = _.filter(this.currentSelection, function(selectedItem) {
                             return _.findWhere(newItems, selectedItem);
@@ -337,7 +336,7 @@ define([
                             this.currentSelection = newSelection;
                         }
                     } else if(this.delayedSelection) {
-                        this.currentSelection = this.delayedSelection(collection);
+                        this.currentSelection = this.delayedSelection(this.collection);
                     }
 
                     if(options.childCategories) {
@@ -360,6 +359,7 @@ define([
                         buildHierarchy(this.hierarchy, this.collection);
                     }
 
+                    this.render();
                     this.updateSelectedDatabases();
                 }
             });
@@ -566,7 +566,9 @@ define([
          * @desc Updates the selected databases collection with the state of the UI
          */
         updateSelectedDatabases: function() {
-            this.selectedDatabasesCollection.set(_.isEmpty(this.currentSelection) ? this.getCurrentSelection(this.collection) : this.currentSelection);
+            this.selectedDatabasesCollection.set(_.isEmpty(this.currentSelection)
+                ? this.getCurrentSelection(this.collection)
+                : this.currentSelection);
         },
 
         /**
@@ -593,10 +595,6 @@ define([
                 var findArguments = this.findInCurrentSelectionArguments($checkbox);
                 if(_.findWhere(selection, findArguments)) {
                     this.check($checkbox);
-
-                    if(this.forceSelection && selection.length === 1) {
-                        this.disable($checkbox);
-                    }
                 }
             }, this);
 
@@ -646,12 +644,6 @@ define([
             } else if(checkedBoxes) {
                 // all the category's children are checked
                 this.check($categoryCheckbox);
-
-                // if this category's children comprise the entire selection, it should be disabled
-                // otherwise clicking it would leave an empty database selection
-                if(this.forceSelection && selection.length === childIndexes.length) {
-                    this.disable($categoryCheckbox);
-                }
             } else {
                 this.uncheck($categoryCheckbox);
             }
@@ -661,11 +653,13 @@ define([
         },
 
         /**
-         * @desc Updates the no databases message to match the current internal state. There should be no need to call this method
+         * @desc Updates the loading spinner and "no databases" message to match the current internal state. There
+         * should be no need to call this method
          * @private
          */
         updateViewState: function() {
             var state = this.viewModel.get('state');
+
             if(this.$emptyMessage) {
                 this.$emptyMessage.toggleClass('hide', state !== STATES.EMPTY);
             }

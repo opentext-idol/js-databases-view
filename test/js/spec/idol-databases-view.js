@@ -47,17 +47,24 @@ define([
         });
     };
 
-    describe('Idol Databases view', function() {
-        describe('when not forcing selections', function() {
+    describe('IDOL Databases View', function() {
+        beforeEach(function() {
+            this.databasesCollection = new DatabasesCollection();
+            this.selectedDatabasesCollection = new DatabasesCollection();
+        });
+
+        describe('when the databases arrive after initialisation', function() {
             describe('without an initial selection', function() {
                 beforeEach(function() {
                     var databases = [
-                        {name: 'DB1'},
-                        {name: 'DB2'}
+                        {id: 'DB1', name: 'DB1'},
+                        {id: 'DB2', name: 'DB2'},
+                        {id: 'DB3', name: 'DB3'},
+                        {id: 'DB4', name: 'DB4'}
                     ];
 
-                    this.selectedDatabasesCollection = new DatabasesCollection(databases);
                     this.databasesCollection = new DatabasesCollection(databases);
+                    this.selectedDatabasesCollection = new DatabasesCollection(databases);
 
                     this.databasesView = new TestDatabaseView({
                         databasesCollection: this.databasesCollection,
@@ -68,10 +75,24 @@ define([
                     });
 
                     this.databasesView.render();
+
+                    this.databasesCollection.reset(databases);
+                });
+
+                it('should hide the loading spinner', function() {
+                    expect(this.databasesView.$('.databases-processing-indicator')).toHaveClass('hide');
+                });
+
+                it('should not show the empty message', function() {
+                    expect(this.databasesView.$('.no-active-databases')).toHaveClass('hide');
+                });
+
+                it('should show the list of databases', function() {
+                    expect(this.databasesView.$('.databases-list')).not.toHaveClass('hide');
                 });
 
                 it('should render the databases', function() {
-                    expect(this.databasesView.$('.database-input')).toHaveLength(2);
+                    expect(this.databasesView.$('.database-input')).toHaveLength(4);
                 });
 
                 it('should start with no checkboxes checked', function() {
@@ -79,7 +100,7 @@ define([
                 });
 
                 it('should start with all databases selected', function() {
-                    testSelection(this.selectedDatabasesCollection, ['DB1', 'DB2']);
+                    testSelection(this.selectedDatabasesCollection, ['DB1', 'DB2', 'DB3', 'DB4']);
                 });
 
                 it('should not have selected the all checkbox', function() {
@@ -99,8 +120,16 @@ define([
                         testSelection(this.selectedDatabasesCollection, ['DB1']);
                     });
 
-                    it('should mark the category checkbox indeterminate', function() {
-                        expect(this.databasesView.$('.category-input')).toHaveProp('indeterminate', true);
+                    it('should hide the loading spinner', function() {
+                        expect(this.databasesView.$('.databases-processing-indicator')).toHaveClass('hide');
+                    });
+
+                    it('should not show the empty message', function() {
+                        expect(this.databasesView.$('.no-active-databases')).toHaveClass('hide');
+                    });
+
+                    it('should show the list of databases', function() {
+                        expect(this.databasesView.$('.databases-list')).not.toHaveClass('hide');
                     });
 
                     describe('and then selecting another database', function() {
@@ -116,242 +145,8 @@ define([
                             testSelection(this.selectedDatabasesCollection, ['DB1', 'DB2']);
                         });
 
-                        it('should have selected the all checkbox', function() {
-                            expect(this.databasesView.$('[data-category-id="all"]')).toHaveProp('checked', true);
-                        });
-                    });
-                });
-            });
-
-            describe('with an initial selection', function() {
-                beforeEach(function() {
-                    this.selectedDatabasesCollection = new DatabasesCollection([
-                        {name: 'DB1'}
-                    ]);
-
-                    this.databasesCollection = new DatabasesCollection([
-                        {name: 'DB1'},
-                        {name: 'DB2'}
-                    ]);
-
-                    this.databasesView = new TestDatabaseView({
-                        databasesCollection: this.databasesCollection,
-                        emptyMessage: EMPTY_MESSAGE,
-                        selectedDatabasesCollection: this.selectedDatabasesCollection,
-                        topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
-                        databaseHelper: databaseHelper
-                    });
-
-                    this.databasesView.render();
-                });
-
-                it('should render the databases', function() {
-                    expect(this.databasesView.$('.database-input')).toHaveLength(2);
-                });
-
-                it('should start with one checkbox checked', function() {
-                    expect(this.databasesView.$('.database-input:checked')).toHaveLength(1);
-                });
-
-                it('should start with the correct databases selected', function() {
-                    testSelection(this.selectedDatabasesCollection, ['DB1']);
-                });
-
-                it('should not have selected the all checkbox', function() {
-                    expect(this.databasesView.$('[data-category-id="all"]')).not.toHaveProp('checked', true);
-                });
-            });
-        });
-
-        describe('when forcing selections', function() {
-            describe('without an initial selection', function() {
-                beforeEach(function() {
-                    var databases = [
-                        {id: 'DB1', name: 'DB1'},
-                        {id: 'DB2', name: 'DB2'}
-                    ];
-
-                    this.selectedDatabasesCollection = new DatabasesCollection(databases);
-                    this.databasesCollection = new DatabasesCollection(databases);
-
-                    this.databasesView = new TestDatabaseView({
-                        databasesCollection: this.databasesCollection,
-                        emptyMessage: EMPTY_MESSAGE,
-                        forceSelection: true,
-                        selectedDatabasesCollection: this.selectedDatabasesCollection,
-                        topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
-                        databaseHelper: databaseHelper
-                    });
-
-                    this.databasesView.render();
-                });
-
-                it('should render the databases', function() {
-                    expect(this.databasesView.$('.database-input')).toHaveLength(2);
-                });
-
-                it('should start with all checkboxes checked', function() {
-                    expect(this.databasesView.$('.database-input:checked')).toHaveLength(2);
-                });
-
-                it('should start with all databases selected', function() {
-                    testSelection(this.selectedDatabasesCollection, ['DB1', 'DB2']);
-                });
-
-                it('should have selected the all checkbox', function() {
-                    expect(this.databasesView.$('[data-category-id="all"]')).toHaveProp('checked', true);
-                });
-
-                it('should have disabled the all checkbox', function() {
-                    expect(this.databasesView.$('[data-category-id="all"]')).toHaveProp('disabled', true);
-                });
-
-                describe('after deselecting a database', function() {
-                    beforeEach(function() {
-                        this.databasesView.selectDatabase({name: 'DB1'}, false);
-                    });
-
-                    it('should have one checkbox checked', function() {
-                        expect(this.databasesView.$('.database-input:checked')).toHaveLength(1);
-                    });
-
-                    it('should have one database selected', function() {
-                        testSelection(this.selectedDatabasesCollection, ['DB2']);
-                    });
-
-                    it('should have disabled the remaining database', function() {
-                        expect(this.databasesView.$('.database-input[data-name="DB2"]')).toHaveProp('disabled', true);
-                    });
-
-                    it('should have unchecked the all checkbox', function() {
-                        expect(this.databasesView.$('[data-category-id="all"]')).toHaveProp('checked', false);
-                    });
-
-                    it('should have enabled the all checkbox', function() {
-                        expect(this.databasesView.$('[data-category-id="all"]')).toHaveProp('disabled', false);
-                    });
-                });
-            });
-
-            describe('with an initial selection', function() {
-                beforeEach(function() {
-                    this.selectedDatabasesCollection = new DatabasesCollection([
-                        {name: 'DB1'}
-                    ]);
-
-                    this.databasesCollection = new DatabasesCollection([
-                        {name: 'DB1'},
-                        {name: 'DB2'},
-                        {name: 'DB3'},
-                        {name: 'DB4'}
-                    ]);
-
-                    this.databasesView = new TestDatabaseView({
-                        databasesCollection: this.databasesCollection,
-                        emptyMessage: EMPTY_MESSAGE,
-                        forceSelection: true,
-                        selectedDatabasesCollection: this.selectedDatabasesCollection,
-                        topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
-                        databaseHelper: databaseHelper
-                    });
-
-                    this.databasesView.render();
-                });
-
-                it('should render the databases', function() {
-                    expect(this.databasesView.$('.database-input')).toHaveLength(4);
-                });
-
-                it('should start with one checkbox checked', function() {
-                    expect(this.databasesView.$('.database-input:checked')).toHaveLength(1);
-                });
-
-                it('should start with the correct databases selected', function() {
-                    testSelection(this.selectedDatabasesCollection, ['DB1']);
-                });
-
-                it('should have disabled the selected database', function() {
-                    expect(this.databasesView.$('.database-input[data-name="DB1"]')).toHaveProp('disabled', true);
-                });
-
-                it('should not have selected the all checkbox', function() {
-                    expect(this.databasesView.$('[data-category-id="all"]')).not.toHaveProp('checked', true);
-                });
-            });
-        });
-
-        describe('when the databases arrive after initialization', function() {
-            describe('when not forcing selections', function() {
-                describe('without an initial selection', function() {
-                    beforeEach(function() {
-                        var databases = [
-                            {id: 'DB1', name: 'DB1'},
-                            {id: 'DB2', name: 'DB2'},
-                            {id: 'DB3', name: 'DB3'},
-                            {id: 'DB4', name: 'DB4'}
-                        ];
-
-                        this.selectedDatabasesCollection = new DatabasesCollection(databases);
-                        this.databasesCollection = new DatabasesCollection(databases);
-
-                        this.databasesView = new TestDatabaseView({
-                            databasesCollection: this.databasesCollection,
-                            emptyMessage: EMPTY_MESSAGE,
-                            selectedDatabasesCollection: this.selectedDatabasesCollection,
-                            topLevelDisplayName: TOP_LEVEL_DISPLAY_NAME,
-                            databaseHelper: databaseHelper
-                        });
-
-                        this.databasesView.render();
-
-                        this.databasesCollection.reset(databases);
-                    });
-
-                    it('should render the databases', function() {
-                        expect(this.databasesView.$('.database-input')).toHaveLength(4);
-                    });
-
-                    it('should start with no checkboxes checked', function() {
-                        expect(this.databasesView.$('.database-input:checked')).toHaveLength(0);
-                    });
-
-                    it('should start with all databases selected', function() {
-                        testSelection(this.selectedDatabasesCollection, ['DB1', 'DB2', 'DB3', 'DB4']);
-                    });
-
-                    it('should not have selected the all checkbox', function() {
-                        expect(this.databasesView.$('[data-category-id="all"]')).not.toHaveProp('checked', true);
-                    });
-
-                    describe('after selecting a database', function() {
-                        beforeEach(function() {
-                            this.databasesView.selectDatabase({name: 'DB1'}, true);
-                        });
-
-                        it('should have one checkbox checked', function() {
-                            expect(this.databasesView.$('.database-input:checked')).toHaveLength(1);
-                        });
-
-                        it('should have one database selected', function() {
-                            testSelection(this.selectedDatabasesCollection, ['DB1']);
-                        });
-
-                        describe('and then selecting another database', function() {
-                            beforeEach(function() {
-                                this.databasesView.selectDatabase({name: 'DB2'}, true);
-                            });
-
-                            it('should have two checkboxes checked', function() {
-                                expect(this.databasesView.$('.database-input:checked')).toHaveLength(2);
-                            });
-
-                            it('should have all databases selected', function() {
-                                testSelection(this.selectedDatabasesCollection, ['DB1', 'DB2']);
-                            });
-
-                            it('should not have selected the all checkbox', function() {
-                                expect(this.databasesView.$('[data-category-id="all"]')).not.toHaveProp('checked', true);
-                            });
+                        it('should not have selected the all checkbox', function() {
+                            expect(this.databasesView.$('[data-category-id="all"]')).not.toHaveProp('checked', true);
                         });
                     });
                 });
@@ -367,8 +162,8 @@ define([
                     {id: 'DB4', name: 'anions'}
                 ];
 
-                this.selectedDatabasesCollection = new DatabasesCollection(databases);
                 this.databasesCollection = new DatabasesCollection(databases);
+                this.selectedDatabasesCollection = new DatabasesCollection(databases);
 
                 this.filterModel = new Backbone.Model();
 
