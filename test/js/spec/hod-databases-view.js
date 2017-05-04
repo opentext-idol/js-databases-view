@@ -1,16 +1,17 @@
 /*
- * Copyright 2015 Hewlett-Packard Development Company, L.P.
+ * Copyright 2015-2017 Hewlett Packard Enterprise Development Company, L.P.
  * Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License.
  */
 
 define([
+    'underscore',
+    'backbone',
     'databases-view/js/databases-view',
     'databases-view/js/hod-databases-collection',
     'databases-view/js/hod-database-helper',
-    'backbone',
-    'underscore',
     'jasmine-jquery'
-], function(DatabasesView, DatabasesCollection, databaseHelper, Backbone, _) {
+], function(_, Backbone, DatabasesView, DatabasesCollection, databaseHelper) {
+    'use strict';
 
     var EMPTY_MESSAGE = 'There are no databases';
     var TOP_LEVEL_DISPLAY_NAME = 'All the things';
@@ -305,7 +306,7 @@ define([
                             delayedSelection: function(collection) {
                                 var privateIndexes = collection.where({domain: 'PRIVATE_INDEXES'});
 
-                                return _.map(privateIndexes, function (indexModel) {
+                                return _.map(privateIndexes, function(indexModel) {
                                     return indexModel.pick('domain', 'name');
                                 });
                             }
@@ -950,5 +951,4 @@ define([
             })
         })
     });
-
 });

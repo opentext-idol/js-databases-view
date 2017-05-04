@@ -1,9 +1,11 @@
 /*
- * Copyright 2015 Hewlett-Packard Development Company, L.P.
+ * Copyright 2015-2017 Hewlett Packard Enterprise Development Company, L.P.
  * Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License.
  */
 
 define(function() {
+    'use strict';
+
     require.config({
         baseUrl: '.',
         paths: {
@@ -14,6 +16,7 @@ define(function() {
             'js-testing': 'bower_components/hp-autonomy-js-testing-utils/src/js',
             'js-whatever': 'bower_components/hp-autonomy-js-whatever/src',
             underscore: 'bower_components/underscore/underscore',
+            text: '../bower_components/requirejs-text/text',
 
             //dir
             test: 'test/js'

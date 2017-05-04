@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Hewlett-Packard Development Company, L.P.
+ * Copyright 2015-2017 Hewlett Packard Enterprise Development Company, L.P.
  * Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License.
  */
 
@@ -9,8 +9,8 @@
 define([
     'backbone'
 ], function(Backbone) {
-    "use strict";
-    
+    'use strict';
+
     /**
      * @name module:databases-view/js/idol-databases-collection.DatabasesCollection
      * @desc Collection representing a set of Idol databases. Each model must have a name attribute.
@@ -22,5 +22,4 @@ define([
             return attributes.name;
         }
     });
-
 });
