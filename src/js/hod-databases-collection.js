@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Hewlett-Packard Development Company, L.P.
+ * Copyright 2015-2017 Hewlett Packard Enterprise Development Company, L.P.
  * Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License.
  */
 
@@ -7,11 +7,11 @@
  * @module databases-view/js/hod-databases-collection
  */
 define([
-    'backbone',
     'underscore',
+    'backbone',
     'js-whatever/js/escape-hod-identifier'
-], function(Backbone, _, escapeHodIdentifier) {
-    "use strict";
+], function(_, Backbone, escapeHodIdentifier) {
+    'use strict';
 
     /**
      * @typedef ResourceIdentifier
@@ -56,9 +56,7 @@ define([
          * @function
          */
         toResourceIdentifiers: function() {
-            //noinspection JSUnresolvedFunction
             return this.invoke('toResourceIdentifier');
         }
     });
-
 });

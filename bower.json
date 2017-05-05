@@ -3,9 +3,10 @@
   "authors": [
     "Alex Scown <alex.scown@hpe.com>",
     "Daniel Grayling <daniel.grayling@hpe.com>",
+    "Wojciech Kaluza <wojciech.kaluza@hpe.com>",
     "Matthew Gordon <matthew.gordon2@hpe.com"
   ],
-  "description": "Backbone view for managing the selection of HP Haven OnDemand resources",
+  "description": "Backbone view for managing the selection of HPE Find resources",
   "moduleType": [
     "amd"
   ],
@@ -27,6 +28,8 @@
     "backbone": "1.2.3",
     "jquery": "1.10.2",
     "underscore": "1.8.3",
+    "requirejs": "2.1.22",
+    "requirejs-text": "2.0.15",
     "hp-autonomy-js-whatever": "2.7.0"
   },
   "resolutions": {

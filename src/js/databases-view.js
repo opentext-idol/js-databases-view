@@ -7,14 +7,20 @@
  * @module databases-view/js/databases-view
  */
 define([
-    'backbone',
-    'jquery',
     'underscore',
+    'jquery',
+    'backbone',
     'js-whatever/js/list-view',
-    'js-whatever/js/filtering-collection'
-], function(Backbone, $, _, ListView, FilteringCollection) //noinspection JSClosureCompilerSyntax
-{
-    "use strict";
+    'js-whatever/js/filtering-collection',
+    'text!databases-view/templates/databases-view.html'
+], function(_, $, Backbone, ListView, FilteringCollection, template) {
+    'use strict';
+
+    var STATES = {
+        EMPTY: 'EMPTY',
+        LOADING: 'LOADING',
+        OK: 'OK'
+    };
 
     var CURRENT_SELECTION = 'currentSelection';
 
@@ -31,7 +37,9 @@ define([
 
     var filteredIndexesCollection = function(nodeFilter, databasesCollection, filterModel) {
         var firstFilter = nodeFilter || _.constant(true);
-        var textFilter = filterModel ? getTextFilter(filterModel) : _.constant(true);
+        var textFilter = filterModel
+            ? getTextFilter(filterModel)
+            : _.constant(true);
 
         return new FilteringCollection([], {
             collection: databasesCollection,
@@ -42,7 +50,7 @@ define([
     };
 
     function filterNode(node) {
-        if (_.isArray(node.children)) {
+        if(_.isArray(node.children)) {
             _.each(node.children, filterNode);
         } else {
             node.children.filter();
@@ -58,7 +66,7 @@ define([
 
     var processCategories = function(categories, collection, currentSelection) {
         return _.chain(categories)
-            // find all the categories who have a child in the databases collection
+        // find all the categories who have a child in the databases collection
             .filter(function(child) {
                 return collection.filter(child.filter).length > 0;
             })
@@ -67,7 +75,7 @@ define([
                 child = _.clone(child);
 
                 var childHasSelection = _.chain(currentSelection)
-                    // for every item in the current selection find the corresponding database in the database collection
+                // for every item in the current selection find the corresponding database in the database collection
                     .map(function(selection) {
                         return collection.findWhere(selection);
                     }, this)
@@ -78,8 +86,8 @@ define([
                     .value();
 
                 // if the category has a selected database, don't collapse it
-                // if we're not forcing selection and the selection is empty (i.e. everything is implicitly selected), don't collapse it
-                child.collapse = !(childHasSelection || (!this.forceSelection && _.isEmpty(currentSelection)));
+                // if the selection is empty (i.e. everything is implicitly selected), don't collapse it
+                child.collapse = !(childHasSelection || _.isEmpty(currentSelection));
 
                 return child;
             }, this)
@@ -125,7 +133,6 @@ define([
      * @property {module:databases-view/js/databases-collection.DatabasesCollection} databasesCollection The resources that the view will display
      * @property {module:databases-view/js/databases-collection.DatabasesCollection} selectedDatabasesCollection The currently selected resources
      * @property {string} topLevelDisplayName The display name of the top level category
-     * @property {boolean} [forceSelection=false] True if at least one item must always be selected; false otherwise
      * @property {string} [emptyMessage=''] Message to display if there are no databases
      * @property {Array<module:databases-view/js/databases-view.DatabasesView~Category>} [childCategories] The categories the databases will be placed in. If undefined all the databases will be in a single category
      * @property {module:databases-view/js/databases-view.DatabasesListViewOptions} [listViewOptions] Options used to create the list views
@@ -157,7 +164,7 @@ define([
          * message support add an element with class no-active databases
          * @method
          */
-        template: _.template('<div class="no-active-databases"></div><div class="databases-list"></div>'),
+        template: _.template(template),
 
         /**
          * @desc Template for an individual database. The element which will respond to user interaction must have
@@ -165,7 +172,7 @@ define([
          * @abstract
          * @method
          */
-        databaseTemplate: $.noop,
+        databaseTemplate: _.noop,
 
         /**
          * @desc Template for a category. The element which will respond to user interaction must have
@@ -174,15 +181,14 @@ define([
          * @abstract
          * @method
          */
-        categoryTemplate: $.noop,
-
+        categoryTemplate: _.noop,
 
         /**
          * @desc Perform any initialization required for the database and category inputs to become functional
          * @abstract
          * @method
          */
-        initializeInputs: $.noop,
+        initializeInputs: _.noop,
 
         /**
          * @desc Marks the given input as selected
@@ -190,7 +196,7 @@ define([
          * @abstract
          * @method
          */
-        check: $.noop,
+        check: _.noop,
 
         /**
          * @desc Marks the given input as deselected
@@ -198,7 +204,7 @@ define([
          * @abstract
          * @method
          */
-        uncheck: $.noop,
+        uncheck: _.noop,
 
         /**
          * @desc Marks the given input as enabled
@@ -206,7 +212,7 @@ define([
          * @abstract
          * @method
          */
-        enable: $.noop,
+        enable: _.noop,
 
         /**
          * @desc Marks the given input as disabled
@@ -214,7 +220,7 @@ define([
          * @abstract
          * @method
          */
-        disable: $.noop,
+        disable: _.noop,
 
         /**
          * @desc Marks the given input as determinate
@@ -222,7 +228,7 @@ define([
          * @abstract
          * @method
          */
-        determinate: $.noop,
+        determinate: _.noop,
 
         /**
          * @desc Marks the given input as indeterminate
@@ -230,7 +236,7 @@ define([
          * @abstract
          * @method
          */
-        indeterminate: $.noop,
+        indeterminate: _.noop,
 
         initialize: function(options) {
             this.collection = options.databasesCollection;
@@ -239,8 +245,8 @@ define([
             this.visibleIndexesCallback = options.visibleIndexesCallback;
             this.delayedSelection = options.delayedSelection;
             this.databaseHelper = options.databaseHelper;
+            this.childCategories = options.childCategories;
 
-            this.forceSelection = options.forceSelection || false;
             this.emptyMessage = options.emptyMessage || '';
 
             this.listViewOptions = options.listViewOptions || {};
@@ -256,29 +262,23 @@ define([
                 tagName: 'ul'
             });
 
-            if (!this.forceSelection && this.selectedDatabasesCollection.length === this.collection.length) {
+            if(this.selectedDatabasesCollection.length === this.collection.length) {
                 this.currentSelection = [];
             } else {
                 this.currentSelection = this.getCurrentSelection(this.selectedDatabasesCollection);
             }
 
-            if (options.childCategories) {
-                var children = processCategories.call(this, options.childCategories, this.collection, this.currentSelection);
-
-                this.hierarchy = {
-                    name: 'all',
-                    displayName: options.topLevelDisplayName,
-                    className: 'list-unstyled',
-                    collapse: false,
-                    children: children
-                };
-            } else {
-                this.hierarchy = {
+            this.hierarchy = _.extend({
                     name: 'all',
                     displayName: options.topLevelDisplayName,
                     className: 'list-unstyled'
-                };
-            }
+                },
+                this.childCategories
+                    ? {
+                        collapse: false,
+                        children: processCategories.call(this, this.childCategories, this.collection, this.currentSelection)
+                    }
+                    : {});
 
             setParent(this.hierarchy);
 
@@ -286,7 +286,7 @@ define([
             // else if node has a filter, set up filtering collection and list view
             // else set up list view
             var buildHierarchy = _.bind(function(node, collection) {
-                if (node.children) {
+                if(node.children) {
                     _.each(node.children, function(child) {
                         buildHierarchy(child, collection);
                     });
@@ -304,12 +304,14 @@ define([
             // start at this hierarchy
             buildHierarchy(this.hierarchy, this.collection);
 
-            this.listenTo(this.collection, 'add remove reset', this.updateEmptyMessage);
+            this.viewModel = new Backbone.Model({state: STATES.LOADING});
+
+            this.listenTo(this.viewModel, 'change:state', this.updateViewState);
 
             this.listenTo(this.collection, 'remove', function(model) {
                 var selectedIndex = _.findWhere(this.currentSelection, this.getSelectedIndexDataFromModel(model));
 
-                if (selectedIndex) {
+                if(selectedIndex) {
                     this.currentSelection = _.without(this.currentSelection, selectedIndex);
                     this.updateCheckedOptions();
                     this.updateSelectedDatabases();
@@ -317,71 +319,72 @@ define([
             });
 
             // if the databases change, we need to recalculate category collapsing and visibility
-            this.listenTo(this.collection, 'reset update', function(collection) {
-                if (!_.isEmpty(this.currentSelection)) {
-                    var newItems = this.getCurrentSelection(collection);
+            this.listenTo(this.collection, 'reset update', function() {
+                if(this.collection.isEmpty()) {
+                    this.viewModel.set('state', STATES.EMPTY);
+                } else {
+                    this.viewModel.set('state', STATES.OK);
 
-                    var newSelection = _.filter(this.currentSelection, function(selectedItem) {
-                        return _.findWhere(newItems, selectedItem);
-                    });
+                    if(!_.isEmpty(this.currentSelection)) {
+                        var newItems = this.getCurrentSelection(this.collection);
 
-                    if (!_.isEqual(newSelection, this.currentSelection)) {
-                        this.currentSelection = newSelection;
+                        var newSelection = _.filter(this.currentSelection, function(selectedItem) {
+                            return _.findWhere(newItems, selectedItem);
+                        });
+
+                        if(!_.isEqual(newSelection, this.currentSelection)) {
+                            this.currentSelection = newSelection;
+                        }
+                    } else if(this.delayedSelection) {
+                        this.currentSelection = this.delayedSelection(this.collection);
                     }
+
+                    if(options.childCategories) {
+                        var removeListViews = function(node) {
+                            if(node.listView) {
+                                node.listView.remove();
+                            }
+
+                            if(_.isArray(node.children)) {
+                                _.each(node.children, function(child) {
+                                    removeListViews(child);
+                                });
+                            }
+                        };
+
+                        removeListViews(this.hierarchy);
+
+                        this.hierarchy.children = processCategories.call(this, options.childCategories, this.collection, this.currentSelection);
+
+                        buildHierarchy(this.hierarchy, this.collection);
+                    }
+
+                    this.render();
+                    this.updateSelectedDatabases();
                 }
-                else if (this.delayedSelection) {
-                    this.currentSelection = this.delayedSelection(collection);
-                }
-
-                if (options.childCategories) {
-                    var removeListViews = function (node) {
-                        if (node.listView) {
-                            node.listView.remove();
-                        }
-
-                        if (_.isArray(node.children)) {
-                            _.each(node.children, function (child) {
-                                removeListViews(child);
-                            });
-                        }
-                    };
-
-                    removeListViews(this.hierarchy);
-
-                    this.hierarchy.children = processCategories.call(this, options.childCategories, this.collection, this.currentSelection);
-
-                    buildHierarchy(this.hierarchy, this.collection);
-                }
-
-                this.render();
-
-                this.updateSelectedDatabases();
             });
 
             this.listenTo(this.selectedDatabasesCollection, 'update reset', function() {
                 // Empty current selection means all selected; if we still have everything selected then there is no work to do
-                if (!(_.isEmpty(this.currentSelection) && this.selectedDatabasesCollection.length === this.collection.length)) {
+                if(!(_.isEmpty(this.currentSelection) && this.selectedDatabasesCollection.length === this.collection.length)) {
                     this.currentSelection = this.getCurrentSelection(this.selectedDatabasesCollection);
                     this.updateCheckedOptions();
                 }
             });
 
-            if (this.filterModel) {
-                this.listenTo(this.filterModel, 'change', function () {
+            if(this.filterModel) {
+                this.listenTo(this.filterModel, 'change', function() {
                     filterNode(this.hierarchy);
                     this.updateCheckedOptions();
 
-                    if (this.visibleIndexesCallback) {
+                    if(this.visibleIndexesCallback) {
                         var getModels = function(node) {
-                            if(_.isArray(node.children)) {
-                                return _.chain(node.children)
-                                    .map(getModels)
-                                    .flatten()
-                                    .value();
-                            }
-                            else {
-                                return node.children.models;
-                            }
+                            return _.isArray(node.children)
+                                ? _.chain(node.children)
+                                       .map(getModels)
+                                       .flatten()
+                                       .value()
+                                : node.children.models;
                         };
 
                         var models = getModels(this.hierarchy);
@@ -408,18 +411,17 @@ define([
 
                 $child.addClass('collapse');
 
-                if (node.collapse) {
+                if(node.collapse) {
                     $nodeEl.find('[data-target]').addClass('collapsed');
                 } else {
                     $child.addClass('in');
                 }
 
-                if (node.listView) {
+                if(node.listView) {
                     node.listView.render();
 
                     $child.append(node.listView.$el);
-                }
-                else {
+                } else {
                     _.each(node.children, function(child) {
                         renderNode(child, $child);
                     });
@@ -435,40 +437,41 @@ define([
             this.$databaseCheckboxes = this.$('.database-input');
             this.$categoryCheckboxes = this.$('.category-input');
 
+            this.$loadingSpinner = this.$('.databases-processing-indicator');
             this.$emptyMessage = this.$('.no-active-databases');
             this.$emptyMessage.text(this.emptyMessage);
 
             this.initializeInputs();
             this.updateCheckedOptions();
-            this.updateEmptyMessage();
+            this.updateViewState();
             return this;
         },
 
-        getCurrentSelection: function (collection) {
-            return collection.map(function (model) {
+        getCurrentSelection: function(collection) {
+            return collection.map(function(model) {
                 return model.pick(this.databaseHelper.getDatabaseAttributes());
             }.bind(this));
         },
 
-        getSelectedIndexData: function (item) {
+        getSelectedIndexData: function(item) {
             return _.pick(item, this.databaseHelper.getDatabaseAttributes());
         },
 
-        getSelectedIndexDataFromModel: function (model) {
+        getSelectedIndexDataFromModel: function(model) {
             var attributes = this.databaseHelper.getDatabaseAttributes();
             return model.pick(attributes);
         },
 
-        findInCurrentSelectionArguments: function ($checkbox) {
+        findInCurrentSelectionArguments: function($checkbox) {
             var args = {};
-            this.databaseHelper.getDatabaseAttributes().forEach(function (arg) {
+            this.databaseHelper.getDatabaseAttributes().forEach(function(arg) {
                 args[arg] = $checkbox.attr('data-' + arg)
             });
             return args;
         },
 
-        selectedItemsEquals: function (item1, item2) {
-            return this.databaseHelper.getDatabaseAttributes().every(function (attribute) {
+        selectedItemsEquals: function(item1, item2) {
+            return this.databaseHelper.getDatabaseAttributes().every(function(attribute) {
                 return item1[attribute] === item2[attribute];
             });
         },
@@ -478,7 +481,7 @@ define([
          * @returns {object} The parameters
          */
         getTemplateOptions: function() {
-            return {};
+            return {loading: ''};
         },
 
         /**
@@ -490,19 +493,19 @@ define([
         selectDatabase: function(data, checked, selection) {
             selection = selection || CURRENT_SELECTION;
 
-            if (checked) {
+            if(checked) {
                 this[selection].push(this.getSelectedIndexDataFromModel(this.collection.find(data)));
 
                 this[selection] = _.uniq(this[selection], this.databaseHelper.getDatabaseIdentifier);
             } else {
-                this[selection] = _.reject(this[selection], function (selectedItem) {
+                this[selection] = _.reject(this[selection], function(selectedItem) {
                     return this.selectedItemsEquals(data, selectedItem);
                 }.bind(this));
             }
 
             this.updateCheckedOptions(this[selection]);
 
-            if (selection === CURRENT_SELECTION) {
+            if(selection === CURRENT_SELECTION) {
                 this.updateSelectedDatabases();
             }
         },
@@ -517,10 +520,9 @@ define([
             selection = selection || CURRENT_SELECTION;
 
             var findNode = function(node, name) {
-                if (node.name === name) {
+                if(node.name === name) {
                     return node;
-                }
-                else if (_.isArray(node.children)) {
+                } else if(_.isArray(node.children)) {
                     return _.find(node.children, function(child) {
                         return findNode(child, name);
                     });
@@ -528,32 +530,34 @@ define([
             };
 
             var findDatabases = function(node) {
-                if (_.isArray(node.children)) {
+                if(_.isArray(node.children)) {
                     return _.chain(node.children)
                         .map(function(child) {
                             return findDatabases(child);
                         })
                         .flatten()
                         .value();
-                }
-                else {
+                } else {
                     return node.children.map(this.getSelectedIndexDataFromModel, this);
                 }
             }.bind(this);
 
             var databases = findDatabases(findNode(this.hierarchy, category));
 
-            if (checked) {
-                this[selection] = _.chain([this[selection], databases]).flatten().uniq(this.databaseHelper.getDatabaseIdentifier).value();
+            if(checked) {
+                this[selection] = _.chain([this[selection], databases])
+                    .flatten()
+                    .uniq(this.databaseHelper.getDatabaseIdentifier)
+                    .value();
             } else {
-                this[selection] = _.reject(this[selection], function (selectedItem) {
+                this[selection] = _.reject(this[selection], function(selectedItem) {
                     return _.findWhere(databases, this.getSelectedIndexData(selectedItem));
                 }.bind(this));
             }
 
             this.updateCheckedOptions(this[selection]);
 
-            if (selection === CURRENT_SELECTION) {
+            if(selection === CURRENT_SELECTION) {
                 this.updateSelectedDatabases(this[selection]);
             }
         },
@@ -562,7 +566,9 @@ define([
          * @desc Updates the selected databases collection with the state of the UI
          */
         updateSelectedDatabases: function() {
-            this.selectedDatabasesCollection.set(_.isEmpty(this.currentSelection) ? this.getCurrentSelection(this.collection) : this.currentSelection);
+            this.selectedDatabasesCollection.set(_.isEmpty(this.currentSelection)
+                ? this.getCurrentSelection(this.collection)
+                : this.currentSelection);
         },
 
         /**
@@ -587,12 +593,8 @@ define([
                 this.determinate($checkbox);
 
                 var findArguments = this.findInCurrentSelectionArguments($checkbox);
-                if (_.findWhere(selection, findArguments)) {
+                if(_.findWhere(selection, findArguments)) {
                     this.check($checkbox);
-
-                    if (this.forceSelection && selection.length === 1) {
-                        this.disable($checkbox);
-                    }
                 }
             }, this);
 
@@ -612,7 +614,7 @@ define([
             var $categoryCheckbox = this.$('[data-category-id="' + node.name + '"]');
             var childIndexes;
 
-            if (_.isArray(node.children)) {
+            if(_.isArray(node.children)) {
                 // traverse each of the child categories recursively
                 // the flatMap gives a list of all the indexes in this category and its descendants
                 childIndexes = _.chain(node.children)
@@ -621,8 +623,7 @@ define([
                     }, this)
                     .flatten()
                     .value();
-            }
-            else {
+            } else {
                 // the indexes are the ones in the collection for this category
                 childIndexes = node.children.map(this.getSelectedIndexDataFromModel, this);
             }
@@ -638,20 +639,12 @@ define([
             var checkedBoxes = _.contains(checkedState, true);
             var unCheckedBoxes = _.contains(checkedState, false);
 
-            if (checkedBoxes && unCheckedBoxes) {
+            if(checkedBoxes && unCheckedBoxes) {
                 this.indeterminate($categoryCheckbox);
-            }
-            else if (checkedBoxes) {
+            } else if(checkedBoxes) {
                 // all the category's children are checked
                 this.check($categoryCheckbox);
-
-                // if this category's children comprise the entire selection, it should be disabled
-                // otherwise clicking it would leave an empty database selection
-                if (this.forceSelection && selection.length === childIndexes.length) {
-                    this.disable($categoryCheckbox);
-                }
-            }
-            else {
+            } else {
                 this.uncheck($categoryCheckbox);
             }
 
@@ -660,15 +653,24 @@ define([
         },
 
         /**
-         * @desc Updates the no databases message to match the current internal state. There should be no need to call this method
+         * @desc Updates the loading spinner and "no databases" message to match the current internal state. There
+         * should be no need to call this method
          * @private
          */
-        updateEmptyMessage: function() {
-            if (this.$emptyMessage && this.$databasesList) {
-                this.$emptyMessage.toggleClass('hide', !this.collection.isEmpty());
-                this.$databasesList.toggleClass('hide', this.collection.isEmpty());
+        updateViewState: function() {
+            var state = this.viewModel.get('state');
+
+            if(this.$emptyMessage) {
+                this.$emptyMessage.toggleClass('hide', state !== STATES.EMPTY);
+            }
+
+            if(this.$loadingSpinner) {
+                this.$loadingSpinner.toggleClass('hide', state !== STATES.LOADING);
+            }
+
+            if(this.$databasesList) {
+                this.$databasesList.toggleClass('hide', state !== STATES.OK);
             }
         }
     });
-
 });
