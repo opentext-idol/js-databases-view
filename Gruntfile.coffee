@@ -100,10 +100,12 @@ module.exports = (grunt) ->
         freeze: true
         jquery: true
         latedef: true
+        laxbreak: true
         newcap: true
         noarg: true
         noempty: true
         nonbsp: true
+        reporterOutput: ""
         undef: true
         unused: true
         globals:
