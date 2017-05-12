@@ -66,7 +66,7 @@ define([
 
     var processCategories = function(categories, collection, currentSelection) {
         return _.chain(categories)
-        // find all the categories who have a child in the databases collection
+            // find all the categories who have a child in the databases collection
             .filter(function(child) {
                 return collection.filter(child.filter).length > 0;
             })
@@ -75,7 +75,7 @@ define([
                 child = _.clone(child);
 
                 var childHasSelection = _.chain(currentSelection)
-                // for every item in the current selection find the corresponding database in the database collection
+                    // for every item in the current selection find the corresponding database in the database collection
                     .map(function(selection) {
                         return collection.findWhere(selection);
                     }, this)
@@ -278,7 +278,8 @@ define([
                         collapse: false,
                         children: processCategories.call(this, this.childCategories, this.collection, this.currentSelection)
                     }
-                    : {});
+                    : {}
+            );
 
             setParent(this.hierarchy);
 
@@ -304,8 +305,17 @@ define([
             // start at this hierarchy
             buildHierarchy(this.hierarchy, this.collection);
 
-            this.viewModel = new Backbone.Model({state: STATES.LOADING});
+            var initialState;
 
+            if (this.collection.currentRequest && this.collection.currentRequest.state() === 'pending') {
+                initialState = STATES.LOADING;
+            } else if (this.collection.isEmpty()) {
+                initialState = STATES.EMPTY;
+            } else {
+                initialState = STATES.OK;
+            }
+
+            this.viewModel = new Backbone.Model({state: initialState});
             this.listenTo(this.viewModel, 'change:state', this.updateViewState);
 
             this.listenTo(this.collection, 'remove', function(model) {
@@ -316,6 +326,10 @@ define([
                     this.updateCheckedOptions();
                     this.updateSelectedDatabases();
                 }
+            });
+
+            this.listenTo(this.collection, 'request', function() {
+                this.viewModel.set('state', STATES.LOADING);
             });
 
             // if the databases change, we need to recalculate category collapsing and visibility
@@ -381,9 +395,9 @@ define([
                         var getModels = function(node) {
                             return _.isArray(node.children)
                                 ? _.chain(node.children)
-                                       .map(getModels)
-                                       .flatten()
-                                       .value()
+                                    .map(getModels)
+                                    .flatten()
+                                    .value()
                                 : node.children.models;
                         };
 
