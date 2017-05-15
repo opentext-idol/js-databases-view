@@ -6,11 +6,12 @@
 define([
     'underscore',
     'backbone',
+    'jquery',
     'databases-view/js/databases-view',
     'databases-view/js/hod-databases-collection',
     'databases-view/js/hod-database-helper',
     'jasmine-jquery'
-], function(_, Backbone, DatabasesView, DatabasesCollection, databaseHelper) {
+], function(_, Backbone, $, DatabasesView, DatabasesCollection, databaseHelper) {
     'use strict';
 
     var EMPTY_MESSAGE = 'There are no databases';
@@ -66,11 +67,13 @@ define([
     describe('HOD Databases View', function() {
         beforeEach(function() {
             this.databasesCollection = new DatabasesCollection();
+            this.loadingDeferred = $.Deferred();
+            this.databasesCollection.currentRequest = this.loadingDeferred.promise();
             this.selectedDatabasesCollection = new DatabasesCollection();
         });
 
         describe('without child categories', function() {
-            describe('without an initial selection', function() {
+            describe('without an initial selection but with an active request', function() {
                 beforeEach(function() {
                     this.databasesView = new TestDatabaseView({
                         databasesCollection: this.databasesCollection,
@@ -102,6 +105,7 @@ define([
                             {name: 'DB2', domain: 'PUBLIC_INDEXES'}
                         ];
 
+                        this.loadingDeferred.resolve();
                         this.databasesCollection.reset(databases);
                         this.selectedDatabasesCollection.reset(databases);
                     });
@@ -169,10 +173,29 @@ define([
                             });
                         });
                     });
+
+                    describe('then another fetch is started', function() {
+                        beforeEach(function() {
+                            this.databasesCollection.currentRequest = $.Deferred().promise();
+                            this.databasesCollection.trigger('request');
+                        });
+
+                        it('should show the loading spinner', function() {
+                            expect(this.databasesView.$('.databases-processing-indicator')).not.toHaveClass('hide');
+                        });
+
+                        it('should not show the empty message', function() {
+                            expect(this.databasesView.$('.no-active-databases')).toHaveClass('hide');
+                        });
+
+                        it('should not show the list of databases', function() {
+                            expect(this.databasesView.$('.databases-list')).toHaveClass('hide');
+                        });
+                    });
                 });
             });
 
-            describe('with an initial selection', function() {
+            describe('with an initial selection and an active request', function() {
                 beforeEach(function() {
                     this.databasesView = new TestDatabaseView({
                         databasesCollection: this.databasesCollection,
@@ -199,6 +222,8 @@ define([
 
                 describe('then the collections are populated', function() {
                     beforeEach(function() {
+                        this.loadingDeferred.resolve();
+
                         this.databasesCollection.reset([
                             {name: 'DB1', domain: 'PUBLIC_INDEXES'},
                             {name: 'DB2', domain: 'PUBLIC_INDEXES'}
@@ -703,7 +728,7 @@ define([
                 var names = _.invoke(models, 'get', 'name');
                 expect(names).toContain('cloud interpretations');
                 expect(names).toContain('anions');
-            })
-        })
+            });
+        });
     });
 });
