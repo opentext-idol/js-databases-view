@@ -6,7 +6,7 @@
     "Wojciech Kaluza <wojciech.kaluza@hpe.com>",
     "Matthew Gordon <matthew.gordon2@hpe.com"
   ],
-  "description": "Backbone view for managing the selection of HPE Find resources",
+  "description": "Backbone view for managing the selection of Micro Focus Find resources",
   "moduleType": [
     "amd"
   ],
