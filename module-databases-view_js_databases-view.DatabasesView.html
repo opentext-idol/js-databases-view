@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>HP Autonomy Databases View Class: DatabasesView</title>
+	<title>Micro Focus IDOL Databases View Class: DatabasesView</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -18,7 +18,7 @@
 <div class="container-fluid">
 	<div class="navbar navbar-fixed-top ">
 		<div class="navbar-inner">
-			<a class="brand" href="index.html">HP Autonomy Databases View</a>
+			<a class="brand" href="index.html">Micro Focus IDOL Databases View</a>
 			<ul class="nav">
 				
 				<li class="dropdown">
@@ -28,15 +28,15 @@
 					<ul class="dropdown-menu ">
 						
 						<li>
-							<a href="databases-view.html">databases-view/js/databases-view</a>
+							<a href="module-databases-view_js_databases-view.html">databases-view/js/databases-view</a>
 						</li>
 						
 						<li>
-							<a href="hod-databases-collection.html">databases-view/js/hod-databases-collection</a>
+							<a href="module-databases-view_js_hod-databases-collection.html">databases-view/js/hod-databases-collection</a>
 						</li>
 						
 						<li>
-							<a href="idol-databases-collection.html">databases-view/js/idol-databases-collection</a>
+							<a href="module-databases-view_js_idol-databases-collection.html">databases-view/js/idol-databases-collection</a>
 						</li>
 						
 
@@ -50,19 +50,19 @@
 					<ul class="dropdown-menu ">
 						
 						<li>
-							<a href="databases-view.DatabasesView.html">databases-view/js/databases-view.DatabasesView</a>
+							<a href="module-databases-view_js_databases-view.DatabasesView.html">databases-view/js/databases-view.DatabasesView</a>
 						</li>
 						
 						<li>
-							<a href="hod-databases-collection.DatabaseModel.html">databases-view/js/hod-databases-collection.DatabaseModel</a>
+							<a href="module-databases-view_js_hod-databases-collection.DatabaseModel.html">databases-view/js/hod-databases-collection.DatabaseModel</a>
 						</li>
 						
 						<li>
-							<a href="hod-databases-collection.DatabasesCollection.html">databases-view/js/hod-databases-collection.DatabasesCollection</a>
+							<a href="module-databases-view_js_hod-databases-collection.DatabasesCollection.html">databases-view/js/hod-databases-collection.DatabasesCollection</a>
 						</li>
 						
 						<li>
-							<a href="idol-databases-collection.DatabasesCollection.html">databases-view/js/idol-databases-collection.DatabasesCollection</a>
+							<a href="module-databases-view_js_idol-databases-collection.DatabasesCollection.html">databases-view/js/idol-databases-collection.DatabasesCollection</a>
 						</li>
 						
 
@@ -87,7 +87,7 @@
 
 <header>
     <h2>
-        <span class="ancestors"><a href="databases-view.html">databases-view/js/databases-view</a>.</span>
+        <span class="ancestors"><a href="module-databases-view_js_databases-view.html">databases-view/js/databases-view</a>.</span>
     
     DatabasesView
     </h2>
@@ -101,7 +101,7 @@
     
         
 <dt>
-    <h4 class="name" id="DatabasesView"><span class="type-signature">&lt;virtual> </span>new DatabasesView<span class="signature">(options)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="DatabasesView"><span class="type-signature">&lt;abstract> </span>new DatabasesView<span class="signature">(options)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -109,18 +109,8 @@
     
     
     <div class="description">
-        <p>View for showing and selecting HP Haven OnDemand resources.  This is an abstract class and must be supplied
-with templates for databases and categories. In addition, six primitive operations must be implemented:</p>
-<p><ul>
-    <li> check
-    <li> uncheck
-    <li> enable
-    <li> disable
-    <li> determinate
-    <li> indeterminate
-</ul>
-The selected databases collection will be kept up to date with the state of the UI, and changes made to the collection
-will be reflected in the view.</p>
+        <p>View for showing and selecting HP Haven OnDemand resources.  This is an abstract class and must be supplied<br>with templates for databases and categories. In addition, six primitive operations must be implemented:</p>
+<p><ul><br>    <li> check<br>    <li> uncheck<br>    <li> enable<br>    <li> disable<br>    <li> determinate<br>    <li> indeterminate<br></ul><br>The selected databases collection will be kept up to date with the state of the UI, and changes made to the collection<br>will be reflected in the view.</p>
     </div>
     
 
@@ -160,7 +150,7 @@ will be reflected in the view.</p>
             <td class="type">
             
                 
-<span class="param-type"><a href="databases-view.DatabasesView.html#DatabasesViewOptions">module:databases-view/js/databases-view.DatabasesView~DatabasesViewOptions</a></span>
+<span class="param-type"><a href="module-databases-view_js_databases-view.DatabasesView.html#~DatabasesViewOptions">module:databases-view/js/databases-view.DatabasesView~DatabasesViewOptions</a></span>
 
 
             
@@ -207,7 +197,7 @@ will be reflected in the view.</p>
 		<ul class="dummy">
 			<li>
 				<a href="databases-view.js.html">databases-view.js</a>,
-				 <a href="databases-view.js.html#sunlight-1-line-103">line 103</a>
+				 <a href="databases-view.js.html#sunlight-1-line-141">line 141</a>
 			</li>
 		</ul>
 	</dd>
@@ -261,7 +251,7 @@ will be reflected in the view.</p>
         <dl>
             
 <dt>
-    <h4 class="name" id="categoryTemplate"><span class="type-signature">&lt;virtual> </span>categoryTemplate<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="categoryTemplate"><span class="type-signature">&lt;abstract> </span>categoryTemplate<span class="signature">()</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -269,9 +259,7 @@ will be reflected in the view.</p>
     
     
     <div class="description">
-        <p>Template for a category. The element which will respond to user interaction must have
-class database-input. The name of the category must be in a data-category-id attribute. There must be an
-element with class child-categories if child categories are used.</p>
+        <p>Template for a category. The element which will respond to user interaction must have<br>class database-input. The name of the category must be in a data-category-id attribute. There must be an<br>element with class child-categories if child categories are used.</p>
     </div>
     
 
@@ -339,7 +327,7 @@ element with class child-categories if child categories are used.</p>
         
             
 <dt>
-    <h4 class="name" id="check"><span class="type-signature">&lt;virtual> </span>check<span class="signature">(input)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="check"><span class="type-signature">&lt;abstract> </span>check<span class="signature">(input)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -464,7 +452,7 @@ element with class child-categories if child categories are used.</p>
         
             
 <dt>
-    <h4 class="name" id="databaseTemplate"><span class="type-signature">&lt;virtual> </span>databaseTemplate<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="databaseTemplate"><span class="type-signature">&lt;abstract> </span>databaseTemplate<span class="signature">()</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -472,8 +460,7 @@ element with class child-categories if child categories are used.</p>
     
     
     <div class="description">
-        <p>Template for an individual database. The element which will respond to user interaction must have
-class database-input.</p>
+        <p>Template for an individual database. The element which will respond to user interaction must have<br>class database-input.</p>
     </div>
     
 
@@ -541,7 +528,7 @@ class database-input.</p>
         
             
 <dt>
-    <h4 class="name" id="determinate"><span class="type-signature">&lt;virtual> </span>determinate<span class="signature">(input)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="determinate"><span class="type-signature">&lt;abstract> </span>determinate<span class="signature">(input)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -666,7 +653,7 @@ class database-input.</p>
         
             
 <dt>
-    <h4 class="name" id="disable"><span class="type-signature">&lt;virtual> </span>disable<span class="signature">(input)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="disable"><span class="type-signature">&lt;abstract> </span>disable<span class="signature">(input)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -791,7 +778,7 @@ class database-input.</p>
         
             
 <dt>
-    <h4 class="name" id="enable"><span class="type-signature">&lt;virtual> </span>enable<span class="signature">(input)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="enable"><span class="type-signature">&lt;abstract> </span>enable<span class="signature">(input)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -1015,7 +1002,7 @@ class database-input.</p>
         
             
 <dt>
-    <h4 class="name" id="indeterminate"><span class="type-signature">&lt;virtual> </span>indeterminate<span class="signature">(input)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="indeterminate"><span class="type-signature">&lt;abstract> </span>indeterminate<span class="signature">(input)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -1140,7 +1127,7 @@ class database-input.</p>
         
             
 <dt>
-    <h4 class="name" id="initializeInputs"><span class="type-signature">&lt;virtual> </span>initializeInputs<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="initializeInputs"><span class="type-signature">&lt;abstract> </span>initializeInputs<span class="signature">()</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -1216,7 +1203,7 @@ class database-input.</p>
         
             
 <dt>
-    <h4 class="name" id="render"><span class="type-signature"></span>render<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="databases-view.DatabasesView.html">module:databases-view/js/databases-view.DatabasesView</a>}</span></h4>
+    <h4 class="name" id="render"><span class="type-signature"></span>render<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="module-databases-view_js_databases-view.DatabasesView.html">module:databases-view/js/databases-view.DatabasesView</a>}</span></h4>
     
     
 </dt>
@@ -1300,7 +1287,7 @@ class database-input.</p>
 	</dt>
 	<dd>
 		
-<span class="param-type"><a href="databases-view.DatabasesView.html">module:databases-view/js/databases-view.DatabasesView</a></span>
+<span class="param-type"><a href="module-databases-view_js_databases-view.DatabasesView.html">module:databases-view/js/databases-view.DatabasesView</a></span>
 
 
 	</dd>
@@ -1721,8 +1708,7 @@ class database-input.</p>
     
     
     <div class="description">
-        <p>Template for the view. If overriding it should have an element with class databases-list. For empty
-message support add an element with class no-active databases</p>
+        <p>Template for the view. If overriding it should have an element with class databases-list. For empty<br>message support add an element with class no-active databases</p>
     </div>
     
 
@@ -1790,7 +1776,7 @@ message support add an element with class no-active databases</p>
         
             
 <dt>
-    <h4 class="name" id="uncheck"><span class="type-signature">&lt;virtual> </span>uncheck<span class="signature">(input)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="uncheck"><span class="type-signature">&lt;abstract> </span>uncheck<span class="signature">(input)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -1915,334 +1901,6 @@ message support add an element with class no-active databases</p>
         
             
 <dt>
-    <h4 class="name" id="updateCategoryCheckbox"><span class="type-signature">&lt;private> </span>updateCategoryCheckbox<span class="signature">(node, <span class="optional">selection</span>)</span><span class="type-signature"> &rarr; {Array.&lt;<a href="global.html#ResourceIdentifier">ResourceIdentifier</a>>}</span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        <p>Updates a category checkbox to match the current internal state. There should be no need to call this method</p>
-    </div>
-    
-
-    
-    
-    
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-
-		<th>Type</th>
-
-		
-		<th>Argument</th>
-		
-
-		
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-	
-
-        <tr>
-            
-                <td class="name"><code>node</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="databases-view.DatabasesView.html#Category">module:databases-view/js/databases-view.DatabasesView~Category</a></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>The category to update</p></td>
-        </tr>
-
-	
-
-        <tr>
-            
-                <td class="name"><code>selection</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array.&lt;String></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Defaults to this.currentSelection</p></td>
-        </tr>
-
-	
-	</tbody>
-</table>
-
-    
-    
-    
-<dl class="details">
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source">
-		<ul class="dummy">
-			<li>
-				<a href="databases-view.js.html">databases-view.js</a>,
-				 <a href="databases-view.js.html#sunlight-1-line-625">line 625</a>
-			</li>
-		</ul>
-	</dd>
-	
-
-	
-
-	
-
-	
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    <h5>Returns:</h5>
-    
-            
-<div class="param-desc">
-    <p>The resource identifier in the category and its descendants</p>
-</div>
-
-
-
-<dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
-<span class="param-type">Array.&lt;<a href="global.html#ResourceIdentifier">ResourceIdentifier</a>></span>
-
-
-	</dd>
-</dl>
-
-
-        
-    
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="updateCheckedOptions"><span class="type-signature">&lt;private> </span>updateCheckedOptions<span class="signature">(<span class="optional">selection</span>)</span><span class="type-signature"></span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        <p>Updates the view to match the current internal state. There should be no need to call this method</p>
-    </div>
-    
-
-    
-    
-    
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-
-		<th>Type</th>
-
-		
-		<th>Argument</th>
-		
-
-		
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-	
-
-        <tr>
-            
-                <td class="name"><code>selection</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array.&lt;String></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>The selection that describes the checked options. Defaults to this.currentSelection</p></td>
-        </tr>
-
-	
-	</tbody>
-</table>
-
-    
-    
-    
-<dl class="details">
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source">
-		<ul class="dummy">
-			<li>
-				<a href="databases-view.js.html">databases-view.js</a>,
-				 <a href="databases-view.js.html#sunlight-1-line-593">line 593</a>
-			</li>
-		</ul>
-	</dd>
-	
-
-	
-
-	
-
-	
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    
-    
-</dd>
-
-        
-            
-<dt>
     <h4 class="name" id="updateSelectedDatabases"><span class="type-signature"></span>updateSelectedDatabases<span class="signature">()</span><span class="type-signature"></span></h4>
     
     
@@ -2316,83 +1974,6 @@ message support add an element with class no-active databases</p>
     
 </dd>
 
-        
-            
-<dt>
-    <h4 class="name" id="updateViewState"><span class="type-signature">&lt;private> </span>updateViewState<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        <p>Updates the loading spinner and &quot;no databases&quot; message to match the current internal state. There
-should be no need to call this method</p>
-    </div>
-    
-
-    
-    
-    
-    
-    
-    
-    
-<dl class="details">
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source">
-		<ul class="dummy">
-			<li>
-				<a href="databases-view.js.html">databases-view.js</a>,
-				 <a href="databases-view.js.html#sunlight-1-line-674">line 674</a>
-			</li>
-		</ul>
-	</dd>
-	
-
-	
-
-	
-
-	
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    
-    
-</dd>
-
         </dl>
     
 
@@ -2401,7 +1982,7 @@ should be no need to call this method</p>
 
         <dl>
                 
-<dt class="name" id="Category">
+<dt class="name" id="~Category">
     <h4>Category</h4>
 
     
@@ -2447,7 +2028,7 @@ should be no need to call this method</p>
             <td class="type">
             
                 
-<span class="param-type"><a href="databases-view.DatabasesView.html#CategoryFilter">module:databases-view/js/databases-view.DatabasesView~CategoryFilter</a></span>
+<span class="param-type"><a href="module-databases-view_js_databases-view.DatabasesView.html#~CategoryFilter">module:databases-view/js/databases-view.DatabasesView~CategoryFilter</a></span>
 
 
             
@@ -2560,7 +2141,7 @@ should be no need to call this method</p>
 		<ul class="dummy">
 			<li>
 				<a href="databases-view.js.html">databases-view.js</a>,
-				 <a href="databases-view.js.html#sunlight-1-line-101">line 101</a>
+				 <a href="databases-view.js.html#sunlight-1-line-124">line 124</a>
 			</li>
 		</ul>
 	</dd>
@@ -2580,7 +2161,7 @@ should be no need to call this method</p>
             
                 
 <dt>
-    <h4 class="name" id="CategoryFilter"><span class="type-signature"></span>CategoryFilter<span class="signature">(model)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    <h4 class="name" id="~CategoryFilter"><span class="type-signature"></span>CategoryFilter<span class="signature">(model)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
     
     
 </dt>
@@ -2675,7 +2256,7 @@ should be no need to call this method</p>
 		<ul class="dummy">
 			<li>
 				<a href="databases-view.js.html">databases-view.js</a>,
-				 <a href="databases-view.js.html#sunlight-1-line-99">line 99</a>
+				 <a href="databases-view.js.html#sunlight-1-line-112">line 112</a>
 			</li>
 		</ul>
 	</dd>
@@ -2727,7 +2308,7 @@ should be no need to call this method</p>
 
             
                 
-<dt class="name" id="DatabasesViewOptions">
+<dt class="name" id="~DatabasesViewOptions">
     <h4>DatabasesViewOptions</h4>
 
     
@@ -2777,7 +2358,7 @@ should be no need to call this method</p>
             <td class="type">
             
                 
-<span class="param-type"><a href="databases-collection.DatabasesCollection.html">module:databases-view/js/databases-collection.DatabasesCollection</a></span>
+<span class="param-type"><a href="module-databases-view_js_databases-collection.DatabasesCollection.html">module:databases-view/js/databases-collection.DatabasesCollection</a></span>
 
 
             
@@ -2810,7 +2391,7 @@ should be no need to call this method</p>
             <td class="type">
             
                 
-<span class="param-type"><a href="databases-collection.DatabasesCollection.html">module:databases-view/js/databases-collection.DatabasesCollection</a></span>
+<span class="param-type"><a href="module-databases-view_js_databases-collection.DatabasesCollection.html">module:databases-view/js/databases-collection.DatabasesCollection</a></span>
 
 
             
@@ -2913,7 +2494,7 @@ should be no need to call this method</p>
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;<a href="databases-view.DatabasesView.html#Category">module:databases-view/js/databases-view.DatabasesView~Category</a>></span>
+<span class="param-type">Array.&lt;<a href="module-databases-view_js_databases-view.DatabasesView.html#~Category">module:databases-view/js/databases-view.DatabasesView~Category</a>></span>
 
 
             
@@ -2948,7 +2529,7 @@ should be no need to call this method</p>
             <td class="type">
             
                 
-<span class="param-type"><a href="databases-view.html#DatabasesListViewOptions">module:databases-view/js/databases-view.DatabasesListViewOptions</a></span>
+<span class="param-type"><a href="module-databases-view_js_databases-view.html#.DatabasesListViewOptions">module:databases-view/js/databases-view.DatabasesListViewOptions</a></span>
 
 
             
@@ -2983,7 +2564,7 @@ should be no need to call this method</p>
             <td class="type">
             
                 
-<span class="param-type"><a href="databases-view.DatabasesView.html#DelayedSelection">module:databases-view/js/databases-view.DatabasesView~DelayedSelection</a></span>
+<span class="param-type"><a href="module-databases-view_js_databases-view.DatabasesView.html#~DelayedSelection">module:databases-view/js/databases-view.DatabasesView~DelayedSelection</a></span>
 
 
             
@@ -3039,7 +2620,7 @@ should be no need to call this method</p>
 		<ul class="dummy">
 			<li>
 				<a href="databases-view.js.html">databases-view.js</a>,
-				 <a href="databases-view.js.html#sunlight-1-line-102">line 102</a>
+				 <a href="databases-view.js.html#sunlight-1-line-131">line 131</a>
 			</li>
 		</ul>
 	</dd>
@@ -3059,7 +2640,7 @@ should be no need to call this method</p>
             
                 
 <dt>
-    <h4 class="name" id="DelayedSelection"><span class="type-signature"></span>DelayedSelection<span class="signature">(collection)</span><span class="type-signature"> &rarr; {Array.&lt;<a href="global.html#ResourceIdentifier">ResourceIdentifier</a>>}</span></h4>
+    <h4 class="name" id="~DelayedSelection"><span class="type-signature"></span>DelayedSelection<span class="signature">(collection)</span><span class="type-signature"> &rarr; {Array.&lt;ResourceIdentifier>}</span></h4>
     
     
 </dt>
@@ -3107,7 +2688,7 @@ should be no need to call this method</p>
             <td class="type">
             
                 
-<span class="param-type"><a href="databases-collection.DatabasesCollection.html">module:databases-view/js/databases-collection.DatabasesCollection</a></span>
+<span class="param-type"><a href="module-databases-view_js_databases-collection.DatabasesCollection.html">module:databases-view/js/databases-collection.DatabasesCollection</a></span>
 
 
             
@@ -3154,7 +2735,7 @@ should be no need to call this method</p>
 		<ul class="dummy">
 			<li>
 				<a href="databases-view.js.html">databases-view.js</a>,
-				 <a href="databases-view.js.html#sunlight-1-line-100">line 100</a>
+				 <a href="databases-view.js.html#sunlight-1-line-118">line 118</a>
 			</li>
 		</ul>
 	</dd>
@@ -3192,7 +2773,7 @@ should be no need to call this method</p>
 	</dt>
 	<dd>
 		
-<span class="param-type">Array.&lt;<a href="global.html#ResourceIdentifier">ResourceIdentifier</a>></span>
+<span class="param-type">Array.&lt;ResourceIdentifier></span>
 
 
 	</dd>
@@ -3222,13 +2803,13 @@ should be no need to call this method</p>
 					
 					
 		<span class="copyright">
-		Copyright 2015-2017 Hewlett Packard Enterprise Development Company, L.P. Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License.
+		Copyright 2015-2018 Micro Focus International plc. Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License.
 		</span>
 					<br />
 					
 		<span class="jsdoc-message">
-		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a>
-		on Mon May 15th 16:24 2017 using the <a
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a>
+		on Fri Jun 22nd 15:21 2018 using the <a
 			href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
 		</span>
 				</footer>
