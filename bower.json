@@ -1,12 +1,12 @@
 {
   "name": "hp-autonomy-js-databases-view",
   "authors": [
-    "Alex Scown <alex.scown@hpe.com>",
-    "Daniel Grayling <daniel.grayling@hpe.com>",
-    "Wojciech Kaluza <wojciech.kaluza@hpe.com>",
-    "Matthew Gordon <matthew.gordon2@hpe.com"
+    "Alex Scown",
+    "Daniel Grayling",
+    "Wojciech Kaluza",
+    "Matthew Gordon"
   ],
-  "description": "Backbone view for managing the selection of Micro Focus Find resources",
+  "description": "Backbone view for managing the selection of OpenText Find resources",
   "moduleType": [
     "amd"
   ],
