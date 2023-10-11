@@ -10,7 +10,7 @@ module.exports = (grunt) ->
   documentation = 'doc'
   testRequireConfig = 'test/js/js-test-require-config.js'
   specs = 'test/js/spec/**/*.js'
-  styles = 'bower_components/hp-autonomy-js-testing-utils/src/css/bootstrap-stub.css'
+  styles = 'node_modules/hp-autonomy-js-testing-utils/src/css/bootstrap-stub.css'
   serverPort = 8000
   host = "http://localhost:#{serverPort}/"
 
@@ -31,6 +31,7 @@ module.exports = (grunt) ->
       test:
         src: sourcePath
         options:
+          version: '3.8.0' # https://github.com/gruntjs/grunt-contrib-jasmine/issues/339
           host: host
           keepRunner: true
           outfile: jasmineSpecRunner
@@ -139,12 +140,6 @@ module.exports = (grunt) ->
           destination: documentation
           template: 'node_modules/ink-docstrap/template'
           configure: 'jsdoc.conf.json'
-    'gh-pages':
-      'default':
-        src: '**/*'
-        options:
-          base: 'doc'
-          message: 'Update documentation'
       travis:
         src: '**/*'
         options:
@@ -170,7 +165,6 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-jasmine'
   grunt.loadNpmTasks 'grunt-contrib-jshint'
   grunt.loadNpmTasks 'grunt-coffeelint'
-  grunt.loadNpmTasks 'grunt-gh-pages'
   grunt.loadNpmTasks 'grunt-jsdoc'
   grunt.loadNpmTasks 'grunt-contrib-watch'
 
@@ -180,7 +174,5 @@ module.exports = (grunt) ->
   grunt.registerTask 'coverage', ['connect:server', 'jasmine:coverage']
   grunt.registerTask 'lint', ['jshint', 'coffeelint']
   grunt.registerTask 'doc', ['jsdoc']
-  grunt.registerTask 'push-doc', ['doc', 'gh-pages:default']
-  grunt.registerTask 'push-doc-travis', ['doc', 'gh-pages:travis']
   grunt.registerTask 'watch-doc', ['watch:doc']
   grunt.registerTask 'watch-test', ['watch:test']

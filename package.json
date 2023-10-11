@@ -2,18 +2,27 @@
   "name": "hp-autonomy-js-databases-view",
   "repository": "https://github.com/opentext-idol/js-databases-view",
   "private": true,
+  "dependencies": {
+    "backbone": "1.2.3",
+    "hp-autonomy-js-whatever": "opentext-idol/jsWhatever#2.12.1",
+    "jquery": "3.7.1",
+    "requirejs": "2.3.3",
+    "requirejs-text": "2.0.15",
+    "underscore": "1.13.6"
+  },
   "devDependencies": {
     "coffeelint": "^1.6.0",
-    "grunt": "^0.4.5",
-    "grunt-coffeelint": "0.0.13",
-    "grunt-contrib-clean": "^0.7.0",
-    "grunt-contrib-connect": "^0.11.2",
-    "grunt-contrib-jasmine": "~1.0.3",
+    "coffeescript": "^2.5.1",
+    "grunt-coffeelint": "0.0.16",
+    "grunt-contrib-clean": "^2.0.0",
+    "grunt-contrib-connect": "^3.0.0",
+    "grunt-contrib-jasmine": "^3.0.0",
     "grunt-contrib-jshint": "^1.1.0",
-    "grunt-gh-pages": "^0.9.1",
     "grunt-jsdoc": "^2.1.0",
     "grunt-template-jasmine-istanbul": "^0.4.0",
-    "grunt-template-jasmine-requirejs": "^0.2.3",
-    "ink-docstrap": "^0.4.12"
+    "grunt-template-jasmine-requirejs": "https://github.com/cloudchen/grunt-template-jasmine-requirejs#e5770cd8a75f88e5e09a5f2d4f389ec23bb2dad2",
+    "hp-autonomy-js-testing-utils": "file:/home/j/code/frontend/repos/js-testing-utils/",
+    "ink-docstrap": "^0.4.12",
+    "jasmine-jquery": "2.1.1"
   }
 }
