@@ -1,15 +1,15 @@
 {
   "name": "hp-autonomy-js-databases-view",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "repository": "https://github.com/opentext-idol/js-databases-view",
   "private": true,
   "dependencies": {
-    "backbone": "1.2.3",
-    "hp-autonomy-js-whatever": "github:opentext-idol/jsWhatever#2.14.0",
-    "jquery": "3.7.1",
-    "requirejs": "2.3.7",
-    "requirejs-text": "2.0.15",
-    "underscore": "1.13.6"
+    "backbone": "^1.2.3",
+    "hp-autonomy-js-whatever": "github:opentext-idol/jsWhatever#2.14.1",
+    "jquery": "^3.7.1",
+    "requirejs": "^2.3.7",
+    "requirejs-text": "^2.0.15",
+    "underscore": "^1.13.8"
   },
   "devDependencies": {
     "coffeelint": "^1.6.0",
@@ -24,6 +24,6 @@
     "grunt-template-jasmine-requirejs": "https://github.com/cloudchen/grunt-template-jasmine-requirejs#e5770cd8a75f88e5e09a5f2d4f389ec23bb2dad2",
     "hp-autonomy-js-testing-utils": "opentext-idol/js-testing-utils#2.4.0",
     "ink-docstrap": "^0.4.12",
-    "jasmine-jquery": "2.1.1"
+    "jasmine-jquery": "^2.1.1"
   }
 }

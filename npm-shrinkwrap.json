@@ -1,19 +1,19 @@
 {
   "name": "hp-autonomy-js-databases-view",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
       "name": "hp-autonomy-js-databases-view",
-      "version": "0.13.0",
+      "version": "0.13.1",
       "dependencies": {
-        "backbone": "1.2.3",
-        "hp-autonomy-js-whatever": "github:opentext-idol/jsWhatever#2.14.0",
-        "jquery": "3.7.1",
-        "requirejs": "2.3.7",
-        "requirejs-text": "2.0.15",
-        "underscore": "1.13.6"
+        "backbone": "^1.2.3",
+        "hp-autonomy-js-whatever": "github:opentext-idol/jsWhatever#2.14.1",
+        "jquery": "^3.7.1",
+        "requirejs": "^2.3.7",
+        "requirejs-text": "^2.0.15",
+        "underscore": "^1.13.8"
       },
       "devDependencies": {
         "coffeelint": "^1.6.0",
@@ -28,7 +28,7 @@
         "grunt-template-jasmine-requirejs": "https://github.com/cloudchen/grunt-template-jasmine-requirejs#e5770cd8a75f88e5e09a5f2d4f389ec23bb2dad2",
         "hp-autonomy-js-testing-utils": "opentext-idol/js-testing-utils#2.4.0",
         "ink-docstrap": "^0.4.12",
-        "jasmine-jquery": "2.1.1"
+        "jasmine-jquery": "^2.1.1"
       }
     },
     "node_modules/@babel/code-frame": {
@@ -3706,19 +3706,26 @@
         "underscore": "1.13.6"
       }
     },
+    "node_modules/hp-autonomy-js-testing-utils/node_modules/underscore": {
+      "version": "1.13.6",
+      "resolved": "https://registry.npmjs.org/underscore/-/underscore-1.13.6.tgz",
+      "integrity": "sha512-+A5Sja4HP1M08MaXya7p5LvjuM7K6q/2EaC0+iovj/wOcMsTzMvDFbasi/oSapiwOlt252IqsKqPjCl7huKS0A==",
+      "dev": true,
+      "license": "MIT"
+    },
     "node_modules/hp-autonomy-js-whatever": {
       "name": "hp-autonomy-frontend-javascript-utils",
-      "version": "2.14.0",
-      "resolved": "git+ssh://git@github.com/opentext-idol/jsWhatever.git#f17efbcd22a3eb6ce22ade1ebe814f23f1303cbc",
+      "version": "2.14.1",
+      "resolved": "git+ssh://git@github.com/opentext-idol/jsWhatever.git#36bd5d3aa9de2c567d0b1c113639d8a6e8269f8a",
       "dependencies": {
-        "backbone": "1.2.3",
-        "bootstrap": "3.4.1",
-        "jquery": "3.7.1",
-        "jquery-steps": "1.1.0",
-        "requirejs": "2.3.7",
-        "requirejs-text": "2.0.15",
-        "store": "1.3.20",
-        "underscore": "1.13.6"
+        "backbone": "^1.2.3",
+        "bootstrap": "^3.4.1",
+        "jquery": "^3.7.1",
+        "jquery-steps": "^1.1.0",
+        "requirejs": "^2.3.7",
+        "requirejs-text": "^2.0.15",
+        "store": "^1.3.20",
+        "underscore": "^1.13.8"
       }
     },
     "node_modules/http-cache-semantics": {
@@ -6245,9 +6252,10 @@
       }
     },
     "node_modules/underscore": {
-      "version": "1.13.6",
-      "resolved": "https://registry.npmjs.org/underscore/-/underscore-1.13.6.tgz",
-      "integrity": "sha512-+A5Sja4HP1M08MaXya7p5LvjuM7K6q/2EaC0+iovj/wOcMsTzMvDFbasi/oSapiwOlt252IqsKqPjCl7huKS0A=="
+      "version": "1.13.8",
+      "resolved": "https://registry.npmjs.org/underscore/-/underscore-1.13.8.tgz",
+      "integrity": "sha512-DXtD3ZtEQzc7M8m4cXotyHR+FAS18C64asBYY5vqZexfYryNNnDc02W4hKg3rdQuqOYas1jkseX0+nZXjTXnvQ==",
+      "license": "MIT"
     },
     "node_modules/underscore.string": {
       "version": "3.3.6",
