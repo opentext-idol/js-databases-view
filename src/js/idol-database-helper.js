@@ -12,16 +12,15 @@
  * information contained herein is subject to change without notice.
  */
 
-define([], function() {
-    'use strict';
+'use strict';
 
-    return {
-        getDatabaseAttributes: function () {
-            return ['name']
-        },
+module.exports = {
+    getDatabaseAttributes: function () {
+        return ['name']
+    },
 
-        getDatabaseIdentifier: function (item) {
-            return item.name;
-        }
-    };
-});
+    getDatabaseIdentifier: function (item) {
+        return item.name;
+    }
+};
+

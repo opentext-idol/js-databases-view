@@ -15,20 +15,19 @@
 /**
  * @module databases-view/js/idol-databases-collection
  */
-define([
-    'backbone'
-], function(Backbone) {
-    'use strict';
+'use strict';
 
-    /**
-     * @name module:databases-view/js/idol-databases-collection.DatabasesCollection
-     * @desc Collection representing a set of Idol databases. Each model must have a name attribute.
-     * @constructor
-     * @extends Backbone.Collection
-     */
-    return Backbone.Collection.extend(/** @lends module:databases-view/js/idol-databases-collection.DatabasesCollection.prototype */{
-        modelId: function(attributes) {
-            return attributes.name;
-        }
-    });
+const Backbone = require('backbone');
+
+/**
+ * @name module:databases-view/js/idol-databases-collection.DatabasesCollection
+ * @desc Collection representing a set of Idol databases. Each model must have a name attribute.
+ * @constructor
+ * @extends Backbone.Collection
+ */
+module.exports = Backbone.Collection.extend(/** @lends module:databases-view/js/idol-databases-collection.DatabasesCollection.prototype */{
+    modelId: function(attributes) {
+        return attributes.name;
+    }
 });
+

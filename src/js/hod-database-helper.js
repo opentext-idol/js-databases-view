@@ -12,18 +12,17 @@
  * information contained herein is subject to change without notice.
  */
 
-define([
-    'js-whatever/js/escape-hod-identifier'
-], function(escapeHodIdentifier) {
-    'use strict';
+'use strict';
 
-    return {
-        getDatabaseAttributes: function() {
-            return ['name', 'domain']
-        },
+const escapeHodIdentifier = require('hp-autonomy-js-whatever/src/js/escape-hod-identifier');
 
-        getDatabaseIdentifier: function(item) {
-            return escapeHodIdentifier(item.domain) + ':' + escapeHodIdentifier(item.name);
-        }
-    };
-});
+module.exports = {
+    getDatabaseAttributes: function() {
+        return ['name', 'domain']
+    },
+
+    getDatabaseIdentifier: function(item) {
+        return escapeHodIdentifier(item.domain) + ':' + escapeHodIdentifier(item.name);
+    }
+};
+

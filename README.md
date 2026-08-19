@@ -2,9 +2,6 @@
 
 A Backbone View for displaying and selecting OpenText Haven OnDemand resources.
 
-This project exposes AMD modules. The path to the project root directory must be aliased as databases-view. The module names
-in the documentation reflect this.
-
 Documentation can be found [here](http://opentext-idol.github.io/js-databases-view).
 
 This repo uses git-flow. develop is the development branch. master is the last known good branch.
