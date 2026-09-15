@@ -20,14 +20,35 @@
 const Backbone = require('backbone');
 
 /**
+ * Model representing a single IDOL database. Must have a name attribute.
+ */
+var DatabaseModel = Backbone.Model.extend({
+    /**
+     * Convert the model to an object with a name property.
+     */
+    toResourceIdentifier: function() {
+        return this.pick('name');
+    }
+});
+
+/**
  * @name module:databases-view/js/idol-databases-collection.DatabasesCollection
  * @desc Collection representing a set of Idol databases. Each model must have a name attribute.
  * @constructor
  * @extends Backbone.Collection
  */
 module.exports = Backbone.Collection.extend(/** @lends module:databases-view/js/idol-databases-collection.DatabasesCollection.prototype */{
+    model: DatabaseModel,
+
     modelId: function(attributes) {
         return attributes.name;
+    },
+
+    /**
+     * Convert the collection to an array of objects with a name property.
+     */
+    toResourceIdentifiers: function() {
+        return this.invoke('toResourceIdentifier');
     }
 });
 
